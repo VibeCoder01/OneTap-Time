@@ -100,7 +100,7 @@ export default function SummaryCard({ activities }: SummaryCardProps) {
           </CardHeader>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <CardContent>
+          <CardContent className="pt-6">
             {activities.length > 0 ? (
               <ChartContainer config={chartConfig} className="mx-auto aspect-square h-[250px]">
                 <PieChart>
