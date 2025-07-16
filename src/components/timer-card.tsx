@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -113,7 +114,7 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
     <Card className="w-full shadow-lg">
       <CardHeader>
         <CardTitle className="text-xl font-headline">
-          {isRunning ? "Activity in Progress..." : "Press Start when you begin an activity."}
+          {isRunning ? "Activity in Progress..." : "Press Start to begin."}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
