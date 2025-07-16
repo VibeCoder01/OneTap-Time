@@ -55,6 +55,7 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
   const [selectedCategoryId, setSelectedCategoryId] = useState(categories[0].id);
   const startTimeRef = useRef<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [showInputs, setShowInputs] = useState(false);
 
   useEffect(() => {
     if (isRunning) {
@@ -66,8 +67,12 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
           setElapsedTime(elapsed);
         }
       }, 1000);
-    } else if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+      setShowInputs(true);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      setShowInputs(false);
     }
 
     return () => {
@@ -81,7 +86,6 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
     if (isRunning) {
       // Stopping the timer
       setIsRunning(false);
-      if (intervalRef.current) clearInterval(intervalRef.current);
       
       const endTime = Date.now();
       if(startTimeRef.current && elapsedTime > 0) {
@@ -117,33 +121,35 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className={cn(
-          "transition-all duration-500 ease-in-out",
-          isRunning ? "opacity-100 max-h-40" : "opacity-0 max-h-0 overflow-hidden"
+          "transition-opacity duration-1000 ease-in-out",
+          showInputs ? "opacity-100" : "opacity-0"
         )}>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Input
-                placeholder="Activity name"
-                value={activityName}
-                onChange={(e) => setActivityName(e.target.value)}
-                className="flex-grow text-base"
-                aria-label="Activity Name"
-              />
-              <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
-                <SelectTrigger className="w-full sm:w-[180px]" aria-label="Category">
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      <div className="flex items-center gap-2">
-                        <category.icon className={`h-4 w-4 ${category.color}`} />
-                        <span>{category.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {showInputs && (
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Input
+                  placeholder="Activity name"
+                  value={activityName}
+                  onChange={(e) => setActivityName(e.target.value)}
+                  className="flex-grow text-base"
+                  aria-label="Activity Name"
+                />
+                <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
+                  <SelectTrigger className="w-full sm:w-[180px]" aria-label="Category">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        <div className="flex items-center gap-2">
+                          <category.icon className={`h-4 w-4 ${category.color}`} />
+                          <span>{category.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
         </div>
         <div className="text-center bg-muted/50 rounded-lg p-4">
           <p className="text-6xl font-mono font-bold tracking-tighter text-foreground">
