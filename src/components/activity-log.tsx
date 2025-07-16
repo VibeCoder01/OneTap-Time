@@ -63,10 +63,12 @@ function EditActivityForm({
   activity,
   categories,
   onSave,
+  onClose,
 }: {
   activity: Activity,
   categories: Category[],
   onSave: (data: Activity) => void,
+  onClose: () => void,
 }) {
   const [name, setName] = useState(activity.name);
   const [selectedCategoryId, setSelectedCategoryId] = useState(activity.category.id);
@@ -83,6 +85,7 @@ function EditActivityForm({
       name,
       category: selectedCategory,
     });
+    onClose();
   };
 
   return (
@@ -120,8 +123,9 @@ function EditActivityForm({
       </div>
       <DialogFooter>
         <DialogClose asChild>
-          <Button type="submit">Save Changes</Button>
+          <Button type="button" variant="ghost">Cancel</Button>
         </DialogClose>
+        <Button type="submit">Save Changes</Button>
       </DialogFooter>
     </form>
   )
@@ -137,6 +141,10 @@ export default function ActivityLog({ activities, categories, onUpdate, onDelete
   
   const handleSaveEdit = (updatedActivity: Activity) => {
     onUpdate(updatedActivity);
+    setEditingActivity(null);
+  }
+
+  const handleCloseDialog = () => {
     setEditingActivity(null);
   }
 
@@ -228,7 +236,8 @@ export default function ActivityLog({ activities, categories, onUpdate, onDelete
             <EditActivityForm 
               activity={editingActivity}
               categories={categories}
-              onSave={handleSaveEdit} 
+              onSave={handleSaveEdit}
+              onClose={handleCloseDialog}
             />
           </DialogContent>
         </Dialog>
