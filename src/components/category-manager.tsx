@@ -151,7 +151,7 @@ function CategoryForm({
 export default function CategoryManager({ categories, onAdd, onUpdate, onDelete }: CategoryManagerProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | undefined>(undefined);
-  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(true);
+  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
 
 
   const handleSave = (data: Omit<Category, 'id' | 'icon'>) => {

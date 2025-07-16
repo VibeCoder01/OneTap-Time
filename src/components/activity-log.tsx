@@ -33,7 +33,7 @@ const formatDuration = (seconds: number) => {
 };
 
 export default function ActivityLog({ activities, onDelete }: ActivityLogProps) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Collapsible

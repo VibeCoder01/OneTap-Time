@@ -26,7 +26,7 @@ interface DataManagerProps {
 
 export default function DataManager({ activities, categories, onImport }: DataManagerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleExport = () => {
     const dataToExport = {
