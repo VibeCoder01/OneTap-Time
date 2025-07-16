@@ -55,7 +55,6 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
   const [selectedCategoryId, setSelectedCategoryId] = useState(categories[0].id);
   const startTimeRef = useRef<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [showInputs, setShowInputs] = useState(false);
 
   useEffect(() => {
     if (isRunning) {
@@ -67,12 +66,10 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
           setElapsedTime(elapsed);
         }
       }, 1000);
-      setShowInputs(true);
     } else {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
-      setShowInputs(false);
     }
 
     return () => {
@@ -121,35 +118,35 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className={cn(
-          "transition-opacity duration-1000 ease-in-out",
-          showInputs ? "opacity-100" : "opacity-0"
-        )}>
-            {showInputs && (
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Input
-                  placeholder="Activity name"
-                  value={activityName}
-                  onChange={(e) => setActivityName(e.target.value)}
-                  className="flex-grow text-base"
-                  aria-label="Activity Name"
-                />
-                <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
-                  <SelectTrigger className="w-full sm:w-[180px]" aria-label="Category">
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        <div className="flex items-center gap-2">
-                          <category.icon className={`h-4 w-4 ${category.color}`} />
-                          <span>{category.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            "grid transition-all duration-700 ease-in-out",
+            isRunning ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          )}>
+          <div className="overflow-hidden">
+            <div className="flex flex-col sm:flex-row gap-4 pt-1">
+              <Input
+                placeholder="Activity name"
+                value={activityName}
+                onChange={(e) => setActivityName(e.target.value)}
+                className="flex-grow text-base"
+                aria-label="Activity Name"
+              />
+              <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
+                <SelectTrigger className="w-full sm:w-[180px]" aria-label="Category">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      <div className="flex items-center gap-2">
+                        <category.icon className={`h-4 w-4 ${category.color}`} />
+                        <span>{category.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
         <div className="text-center bg-muted/50 rounded-lg p-4">
           <p className="text-6xl font-mono font-bold tracking-tighter text-foreground">
