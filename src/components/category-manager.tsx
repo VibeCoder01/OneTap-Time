@@ -100,7 +100,7 @@ function CategoryForm({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="category-icon">Icon</Label>
-          <Select value={iconName} onValuechange={setIconName}>
+          <Select value={iconName} onValueChange={setIconName}>
             <SelectTrigger id="category-icon">
               <SelectValue placeholder="Select an icon" />
             </SelectTrigger>
@@ -254,4 +254,3 @@ export default function CategoryManager({ categories, onAdd, onUpdate, onDelete 
     </Card>
   );
 }
-
