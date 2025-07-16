@@ -85,14 +85,13 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
       // Stopping the timer
       setIsRunning(false);
       
-      const endTime = Date.now();
       if(startTimeRef.current && elapsedTime > 0) {
         const selectedCategory = categories.find(c => c.id === selectedCategoryId)!;
         onLogActivity({
           name: activityName || "Untitled Activity",
           category: selectedCategory,
           startTime: startTimeRef.current,
-          endTime: endTime,
+          endTime: Date.now(),
           duration: elapsedTime,
         });
       }
