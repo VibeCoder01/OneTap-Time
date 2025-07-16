@@ -50,6 +50,17 @@ export default function Home() {
     // For now, they will remain but might cause issues if not handled.
     // A better approach could be to set them to a default 'Other' category or delete them.
   };
+  
+  const handleImportData = (data: { activities: Activity[], categories: Category[] }) => {
+    // A simple validation to ensure we have the expected structure
+    if (data && Array.isArray(data.activities) && Array.isArray(data.categories)) {
+      setActivities(data.activities.map(a => ({...a, category: {...a.category, icon: iconMap[a.category.iconName]}})));
+      setCategories(data.categories);
+    } else {
+      // You might want to show a toast or alert here for invalid files
+      alert("Invalid data file format.");
+    }
+  };
 
 
   const dailyActivities = useMemo(() => {
@@ -86,9 +97,11 @@ export default function Home() {
 
         <CategoryManager 
           categories={categoryUsage} 
+          allActivities={activities}
           onAdd={handleAddCategory} 
           onUpdate={handleUpdateCategory} 
           onDelete={handleDeleteCategory}
+          onImport={handleImportData}
         />
       </main>
     </div>
