@@ -113,7 +113,7 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
     <Card className="w-full shadow-lg">
       <CardHeader>
         <CardTitle className="text-xl font-headline">
-          {isRunning ? "Activity in Progress..." : "What are you working on?"}
+          {isRunning ? "Activity in Progress..." : "Press Start when you begin an activity."}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
