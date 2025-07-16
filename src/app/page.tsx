@@ -7,6 +7,7 @@ import TimerCard from '@/components/timer-card';
 import ActivityLog from '@/components/activity-log';
 import SummaryCard from '@/components/summary-card';
 import CategoryManager from '@/components/category-manager';
+import DataManager from '@/components/data-manager';
 import type { Activity, Category } from '@/lib/types';
 import { iconMap } from '@/lib/types';
 
@@ -46,18 +47,13 @@ export default function Home() {
 
   const handleDeleteCategory = (id: string) => {
     setCategories(prev => prev.filter(category => category.id !== id));
-    // Optional: Decide what to do with activities that used this category.
-    // For now, they will remain but might cause issues if not handled.
-    // A better approach could be to set them to a default 'Other' category or delete them.
   };
   
   const handleImportData = (data: { activities: Activity[], categories: Category[] }) => {
-    // A simple validation to ensure we have the expected structure
     if (data && Array.isArray(data.activities) && Array.isArray(data.categories)) {
       setActivities(data.activities.map(a => ({...a, category: {...a.category, icon: iconMap[a.category.iconName]}})));
       setCategories(data.categories);
     } else {
-      // You might want to show a toast or alert here for invalid files
       alert("Invalid data file format.");
     }
   };
@@ -94,15 +90,21 @@ export default function Home() {
         </div>
         
         <ActivityLog activities={activities} onDelete={handleDeleteActivity} />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <CategoryManager 
+              categories={categoryUsage} 
+              onAdd={handleAddCategory} 
+              onUpdate={handleUpdateCategory} 
+              onDelete={handleDeleteCategory}
+            />
+            <DataManager 
+                activities={activities}
+                categories={categories.map(({isUsed, ...c}) => c)}
+                onImport={handleImportData}
+            />
+        </div>
 
-        <CategoryManager 
-          categories={categoryUsage} 
-          allActivities={activities}
-          onAdd={handleAddCategory} 
-          onUpdate={handleUpdateCategory} 
-          onDelete={handleDeleteCategory}
-          onImport={handleImportData}
-        />
       </main>
     </div>
   );
