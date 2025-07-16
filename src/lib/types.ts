@@ -1,6 +1,22 @@
 "use client"
 import type { LucideIcon } from "lucide-react";
-import { Briefcase, BookOpen, Dumbbell, User, MoreHorizontal, Sun, Moon } from 'lucide-react';
+import { 
+  Briefcase, 
+  BookOpen, 
+  Dumbbell, 
+  User, 
+  MoreHorizontal, 
+  Sun, 
+  Moon,
+  Code,
+  Palette,
+  Music,
+  Home,
+  Utensils,
+  Gamepad2,
+  ShoppingBag,
+  Film
+} from 'lucide-react';
 
 export interface Category {
   id: string;
@@ -24,7 +40,15 @@ export const iconMap: { [key: string]: React.ComponentType<{ className?: string 
   BookOpen,
   Dumbbell,
   User,
-  MoreHorizontal,
+  Code,
+  Palette,
+  Music,
+  Home,
+  Utensils,
+  Gamepad2,
+  ShoppingBag,
+  Film,
   Sun,
   Moon,
+  MoreHorizontal,
 };
