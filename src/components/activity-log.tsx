@@ -59,7 +59,7 @@ export default function ActivityLog({ activities, onDelete }: ActivityLogProps) 
           </CardHeader>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <CardContent>
+          <CardContent className="pt-6">
             <ScrollArea className="h-[400px] pr-4">
               <div className="space-y-4">
                 {activities.length > 0 ? (
