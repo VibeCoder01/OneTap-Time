@@ -27,6 +27,7 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import type { Activity, Category } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 const categories: Category[] = [
   { id: "work", name: "Work", color: "text-blue-500", icon: Briefcase },
@@ -83,7 +84,7 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
       if (intervalRef.current) clearInterval(intervalRef.current);
       
       const endTime = Date.now();
-      if(startTimeRef.current) {
+      if(startTimeRef.current && elapsedTime > 0) {
         const selectedCategory = categories.find(c => c.id === selectedCategoryId)!;
         onLogActivity({
           name: activityName || "Untitled Activity",
@@ -115,29 +116,34 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Input
-            placeholder="Activity name"
-            value={activityName}
-            onChange={(e) => setActivityName(e.target.value)}
-            className="flex-grow text-base"
-            aria-label="Activity Name"
-          />
-          <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
-            <SelectTrigger className="w-full sm:w-[180px]" aria-label="Category">
-              <SelectValue placeholder="Select a category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  <div className="flex items-center gap-2">
-                    <category.icon className={`h-4 w-4 ${category.color}`} />
-                    <span>{category.name}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className={cn(
+          "transition-all duration-500 ease-in-out",
+          isRunning ? "opacity-100 max-h-40" : "opacity-0 max-h-0 overflow-hidden"
+        )}>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Input
+                placeholder="Activity name"
+                value={activityName}
+                onChange={(e) => setActivityName(e.target.value)}
+                className="flex-grow text-base"
+                aria-label="Activity Name"
+              />
+              <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
+                <SelectTrigger className="w-full sm:w-[180px]" aria-label="Category">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      <div className="flex items-center gap-2">
+                        <category.icon className={`h-4 w-4 ${category.color}`} />
+                        <span>{category.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
         </div>
         <div className="text-center bg-muted/50 rounded-lg p-4">
           <p className="text-6xl font-mono font-bold tracking-tighter text-foreground">
