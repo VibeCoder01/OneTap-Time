@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -21,22 +20,11 @@ import {
 import {
   Play,
   Square,
-  Briefcase,
-  BookOpen,
-  Dumbbell,
-  User,
   MoreHorizontal,
 } from "lucide-react";
 import type { Activity, Category } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
-const categories: Category[] = [
-  { id: "work", name: "Work", color: "text-blue-500", icon: Briefcase },
-  { id: "learning", name: "Learning", color: "text-green-500", icon: BookOpen },
-  { id: "exercise", name: "Exercise", color: "text-red-500", icon: Dumbbell },
-  { id: "personal", name: "Personal", color: "text-purple-500", icon: User },
-  { id: "other", name: "Other", color: "text-gray-500", icon: MoreHorizontal },
-];
+import { iconMap } from "@/lib/types";
 
 const formatTime = (seconds: number) => {
   const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
@@ -47,15 +35,22 @@ const formatTime = (seconds: number) => {
 
 interface TimerCardProps {
   onLogActivity: (activity: Omit<Activity, 'id'>) => void;
+  categories: Category[];
 }
 
-export default function TimerCard({ onLogActivity }: TimerCardProps) {
+export default function TimerCard({ onLogActivity, categories }: TimerCardProps) {
   const [isRunning, setIsRunning] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [activityName, setActivityName] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState(categories[0].id);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(categories[0]?.id || "");
   const startTimeRef = useRef<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (categories.length > 0 && !selectedCategoryId) {
+      setSelectedCategoryId(categories[0].id);
+    }
+  }, [categories, selectedCategoryId]);
 
   useEffect(() => {
     if (isRunning) {
@@ -102,12 +97,19 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
       startTimeRef.current = null;
     } else {
       // Starting the timer
+      if (categories.length === 0) {
+        alert("Please add a category before starting the timer.");
+        return;
+      }
+      if (!selectedCategoryId && categories.length > 0) {
+        setSelectedCategoryId(categories[0].id)
+      }
       setIsRunning(true);
     }
   };
 
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
-  const Icon = selectedCategory?.icon || MoreHorizontal;
+  const Icon = selectedCategory ? iconMap[selectedCategory.iconName] : MoreHorizontal;
 
   return (
     <Card className="w-full shadow-lg">
@@ -121,8 +123,8 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
             "grid transition-all duration-700 ease-in-out",
             isRunning ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
           )}>
-          <div className="overflow-hidden">
-             <div className="flex flex-col sm:flex-row gap-4 p-1">
+          <div className="overflow-hidden p-1">
+             <div className="flex flex-col sm:flex-row gap-4">
               <Input
                 placeholder="Activity name"
                 value={activityName}
@@ -130,19 +132,22 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
                 className="flex-grow text-base"
                 aria-label="Activity Name"
               />
-              <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
+              <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId} disabled={categories.length === 0}>
                 <SelectTrigger className="w-full sm:w-[180px]" aria-label="Category">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      <div className="flex items-center gap-2">
-                        <category.icon className={`h-4 w-4 ${category.color}`} />
-                        <span>{category.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
+                  {categories.map((category) => {
+                    const CategoryIcon = iconMap[category.iconName] || MoreHorizontal;
+                    return (
+                      <SelectItem key={category.id} value={category.id}>
+                        <div className="flex items-center gap-2">
+                          <CategoryIcon className={cn("h-4 w-4", category.color)} />
+                          <span>{category.name}</span>
+                        </div>
+                      </SelectItem>
+                    )
+                  })}
                 </SelectContent>
               </Select>
             </div>

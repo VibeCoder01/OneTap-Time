@@ -41,6 +41,7 @@ export default function ActivityLog({ activities, onDelete }: ActivityLogProps) 
             {activities.length > 0 ? (
               activities.map((activity) => {
                 const CategoryIcon = activity.category.icon;
+                if (!CategoryIcon) return null; // Should not happen if data is consistent
                 return (
                   <div key={activity.id} className="flex items-center gap-4 p-3 bg-card rounded-lg border transition-all hover:bg-muted/50">
                     <div className={`p-2 rounded-full bg-muted`}>

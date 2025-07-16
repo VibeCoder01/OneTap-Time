@@ -16,7 +16,9 @@ import {
 } from "@/components/ui/chart";
 import { PieChart, Pie, Cell } from "recharts";
 import type { Activity } from "@/lib/types";
-import { Briefcase, BookOpen, Dumbbell, User, MoreHorizontal, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
+import { iconMap } from "@/lib/types";
+
 
 const categoryColors: { [key: string]: string } = {
   work: "hsl(var(--chart-1))",
@@ -26,13 +28,6 @@ const categoryColors: { [key: string]: string } = {
   other: "hsl(var(--chart-5))",
 };
 
-const categoryIcons: { [key: string]: React.ComponentType<{ className?: string }> } = {
-  work: Briefcase,
-  learning: BookOpen,
-  exercise: Dumbbell,
-  personal: User,
-  other: MoreHorizontal,
-};
 
 interface SummaryCardProps {
   activities: Activity[];
@@ -55,13 +50,14 @@ export default function SummaryCard({ activities }: SummaryCardProps) {
     })).sort((a, b) => b.duration - a.duration);
 
     const config: ChartConfig = {};
-    data.forEach(item => {
-        const iconKey = item.name.toLowerCase();
-        config[item.name] = {
-            label: item.name,
-            color: categoryColors[iconKey],
-            icon: categoryIcons[iconKey],
-        }
+    activities.forEach(({ category }) => {
+      if (!config[category.name]) {
+        config[category.name] = {
+          label: category.name,
+          color: categoryColors[category.name.toLowerCase()] || categoryColors.other,
+          icon: iconMap[category.iconName],
+        };
+      }
     });
 
     return { totalDuration: total, categoryData: data, chartConfig: config };
