@@ -32,6 +32,10 @@ export default function Home() {
     setActivities(prev => [{ ...activity, id: crypto.randomUUID(), category: categoryWithIcon }, ...prev]);
   };
 
+  const handleUpdateActivity = (updatedActivity: Activity) => {
+    setActivities(prev => prev.map(a => a.id === updatedActivity.id ? { ...updatedActivity, category: { ...updatedActivity.category, icon: iconMap[updatedActivity.category.iconName] }} : a));
+  };
+
   const handleDeleteActivity = (id: string) => {
     setActivities(prev => prev.filter(activity => activity.id !== id));
   }
@@ -89,7 +93,12 @@ export default function Home() {
           <SummaryCard activities={dailyActivities} />
         </div>
         
-        <ActivityLog activities={activities} onDelete={handleDeleteActivity} />
+        <ActivityLog 
+          activities={activities} 
+          categories={categories}
+          onUpdate={handleUpdateActivity}
+          onDelete={handleDeleteActivity} 
+        />
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <CategoryManager 
