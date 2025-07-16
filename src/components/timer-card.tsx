@@ -122,7 +122,7 @@ export default function TimerCard({ onLogActivity }: TimerCardProps) {
             isRunning ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
           )}>
           <div className="overflow-hidden">
-            <div className="flex flex-col sm:flex-row gap-4 pt-1">
+             <div className="flex flex-col sm:flex-row gap-4 p-1">
               <Input
                 placeholder="Activity name"
                 value={activityName}
