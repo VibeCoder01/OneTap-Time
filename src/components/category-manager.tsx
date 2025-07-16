@@ -9,6 +9,12 @@ import {
   CardTitle,
   CardDescription
 } from "@/components/ui/card";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+  } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,7 +45,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Edit, Trash2, PlusCircle, Settings, Tag } from 'lucide-react';
+import { Edit, Trash2, PlusCircle, Settings, Tag, ChevronDown } from 'lucide-react';
 import type { Category } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { iconMap } from '@/lib/types';
@@ -94,7 +100,7 @@ function CategoryForm({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="category-icon">Icon</Label>
-          <Select value={iconName} onValueChange={setIconName}>
+          <Select value={iconName} onValuechange={setIconName}>
             <SelectTrigger id="category-icon">
               <SelectValue placeholder="Select an icon" />
             </SelectTrigger>
@@ -169,74 +175,83 @@ export default function CategoryManager({ categories, onAdd, onUpdate, onDelete 
 
   return (
     <Card className="shadow-lg w-full">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-            <CardTitle className="text-xl font-headline flex items-center gap-2">
-                <Tag className="h-5 w-5"/>
-                Manage Categories
-            </CardTitle>
-            <CardDescription>Add, edit, or remove activity categories.</CardDescription>
-        </div>
-        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-            <DialogTrigger asChild>
-                <Button onClick={openAddDialog}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Category
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
-                </DialogHeader>
-                <CategoryForm category={editingCategory} onSave={handleSave} />
-            </DialogContent>
-        </Dialog>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          {categories.length > 0 ? (
-            categories.map((category) => {
-              const CategoryIcon = iconMap[category.iconName];
-              return (
-                <div key={category.id} className="flex items-center gap-4 p-2 bg-card rounded-lg border">
-                  <CategoryIcon className={cn("h-5 w-5", category.color)} />
-                  <p className="flex-grow font-medium text-foreground">{category.name}</p>
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => openEditDialog(category)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" disabled={category.isUsed}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the "{category.name}" category.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => onDelete(category.id)}>Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-
-                  </div>
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="item-1">
+          <AccordionTrigger className="p-6">
+              <div className="flex flex-row items-center justify-between w-full">
+                <div>
+                  <CardTitle className="text-xl font-headline flex items-center gap-2">
+                      <Tag className="h-5 w-5"/>
+                      Manage Categories
+                  </CardTitle>
+                  <CardDescription>Add, edit, or remove activity categories.</CardDescription>
                 </div>
-              );
-            })
-          ) : (
-             <div className="text-center py-10 text-muted-foreground">
-                <p>No categories found.</p>
-                <p className="text-sm">Click "Add Category" to get started.</p>
               </div>
-          )}
-        </div>
-      </CardContent>
+          </AccordionTrigger>
+          <AccordionContent>
+            <CardContent>
+                <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+                    <DialogTrigger asChild>
+                        <Button onClick={openAddDialog} className="mb-4">
+                            <PlusCircle className="mr-2 h-4 w-4" /> Add Category
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
+                        </DialogHeader>
+                        <CategoryForm category={editingCategory} onSave={handleSave} />
+                    </DialogContent>
+                </Dialog>
+                <div className="space-y-2">
+                {categories.length > 0 ? (
+                    categories.map((category) => {
+                    const CategoryIcon = iconMap[category.iconName];
+                    return (
+                        <div key={category.id} className="flex items-center gap-4 p-2 bg-card rounded-lg border">
+                        <CategoryIcon className={cn("h-5 w-5", category.color)} />
+                        <p className="flex-grow font-medium text-foreground">{category.name}</p>
+                        <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => openEditDialog(category)}>
+                            <Edit className="h-4 w-4" />
+                            </Button>
+                            
+                            <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" disabled={category.isUsed}>
+                                <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete the "{category.name}" category.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => onDelete(category.id)}>Delete</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                            </AlertDialog>
+
+                        </div>
+                        </div>
+                    );
+                    })
+                ) : (
+                    <div className="text-center py-10 text-muted-foreground">
+                        <p>No categories found.</p>
+                        <p className="text-sm">Click "Add Category" to get started.</p>
+                    </div>
+                )}
+                </div>
+            </CardContent>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </Card>
   );
 }
+

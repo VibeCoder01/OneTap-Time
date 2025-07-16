@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -80,13 +81,15 @@ export default function Home() {
           </div>
           <SummaryCard activities={dailyActivities} />
         </div>
+        
+        <ActivityLog activities={activities} onDelete={handleDeleteActivity} />
+
         <CategoryManager 
           categories={categoryUsage} 
           onAdd={handleAddCategory} 
           onUpdate={handleUpdateCategory} 
           onDelete={handleDeleteCategory}
         />
-        <ActivityLog activities={activities} onDelete={handleDeleteActivity} />
       </main>
     </div>
   );
