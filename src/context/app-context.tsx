@@ -126,9 +126,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
     
     const restoreDefaultCategories = () => {
         setCategories(prevCategories => {
-            const defaultCategoryIds = new Set(initialCategories.map(c => c.id));
-            const customCategories = prevCategories.filter(c => !defaultCategoryIds.has(c.id));
-            return [...customCategories, ...initialCategories];
+            const defaultCategoryMap = new Map(initialCategories.map(c => [c.id, c]));
+            const customCategories = [];
+            const existingDefaultIds = new Set();
+
+            for (const category of prevCategories) {
+                if (defaultCategoryMap.has(category.id)) {
+                    // It's a default category, add its ID to the set
+                    existingDefaultIds.add(category.id);
+                } else {
+                    // It's a true custom category
+                    customCategories.push(category);
+                }
+            }
+
+            // Add any missing default categories
+            const missingDefaults = initialCategories.filter(c => !existingDefaultIds.has(c.id));
+
+            return [...customCategories, ...prevCategories.filter(c => defaultCategoryMap.has(c.id)), ...missingDefaults];
         });
     };
     
