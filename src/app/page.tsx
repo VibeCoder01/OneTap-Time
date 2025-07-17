@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Header from '@/components/header';
 import TimerCard from '@/components/timer-card';
 import ActivityLog from '@/components/activity-log';
@@ -20,9 +20,58 @@ const initialCategories: Category[] = [
   { id: 'other', name: 'Other', color: 'text-gray-500', iconName: 'MoreHorizontal' },
 ];
 
+const getInitialData = () => {
+  if (typeof window === 'undefined') {
+    return { activities: [], categories: initialCategories };
+  }
+  try {
+    const savedData = localStorage.getItem('oneTapData');
+    if (savedData) {
+      const parsed = JSON.parse(savedData);
+      // Basic validation
+      if (Array.isArray(parsed.activities) && Array.isArray(parsed.categories)) {
+        return parsed;
+      }
+    }
+  } catch (error) {
+    console.error("Failed to load data from localStorage", error);
+  }
+  return { activities: [], categories: initialCategories };
+};
+
+
 export default function Home() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const initialData = getInitialData();
+    setActivities(initialData.activities);
+    setCategories(initialData.categories);
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    try {
+      const dataToSave = {
+        activities: activities.map(({ category, ...rest }) => ({
+            ...rest,
+            category: {
+                id: category.id,
+                name: category.name,
+                color: category.color,
+                iconName: category.iconName,
+            }
+        })),
+        categories: categories.map(({ isUsed, icon, ...c }) => c),
+      };
+      localStorage.setItem('oneTapData', JSON.stringify(dataToSave));
+    } catch (error) {
+      console.error("Failed to save data to localStorage", error);
+    }
+  }, [activities, categories, isLoaded]);
 
   const handleLogActivity = (activity: Omit<Activity, 'id'>) => {
     const categoryWithIcon = {
@@ -74,6 +123,16 @@ export default function Home() {
       );
     });
   }, [activities]);
+  
+  const activitiesWithIcons = useMemo(() => {
+      return activities.map(a => ({
+        ...a,
+        category: {
+          ...a.category,
+          icon: iconMap[a.category.iconName] || MoreHorizontal,
+        }
+      }))
+  }, [activities]);
 
   const categoryUsage = useMemo(() => {
     return categories.map(c => ({
@@ -81,6 +140,15 @@ export default function Home() {
       isUsed: activities.some(a => a.category.id === c.id)
     }));
   }, [categories, activities]);
+
+  if (!isLoaded) {
+    return (
+       <div className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8 space-y-8">
+        <Header />
+        <p>Loading your session...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center min-h-screen p-4 sm:p-6 lg:p-8 space-y-8">
@@ -94,7 +162,7 @@ export default function Home() {
         </div>
         
         <ActivityLog 
-          activities={activities} 
+          activities={activitiesWithIcons} 
           categories={categories}
           onUpdate={handleUpdateActivity}
           onDelete={handleDeleteActivity} 
