@@ -22,9 +22,9 @@ import {
   ChartConfig,
 } from "@/components/ui/chart";
 import { PieChart, Pie, Cell } from "recharts";
-import type { Activity } from "@/lib/types";
 import { Clock, ChevronsUpDown } from 'lucide-react';
 import { iconMap } from "@/lib/types";
+import { useAppContext } from "@/context/app-context";
 
 
 const categoryColors: { [key: string]: string } = {
@@ -35,19 +35,15 @@ const categoryColors: { [key: string]: string } = {
   other: "hsl(var(--chart-5))",
 };
 
-
-interface SummaryCardProps {
-  activities: Activity[];
-}
-
-export default function SummaryCard({ activities }: SummaryCardProps) {
+export default function SummaryCard() {
+  const { dailyActivities } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
 
   const { totalDuration, categoryData, chartConfig } = useMemo(() => {
     let total = 0;
     const categoryMap: { [key: string]: number } = {};
 
-    activities.forEach((activity) => {
+    dailyActivities.forEach((activity) => {
       total += activity.duration;
       categoryMap[activity.category.name] = (categoryMap[activity.category.name] || 0) + activity.duration;
     });
@@ -59,7 +55,7 @@ export default function SummaryCard({ activities }: SummaryCardProps) {
     })).sort((a, b) => b.duration - a.duration);
 
     const config: ChartConfig = {};
-    activities.forEach(({ category }) => {
+    dailyActivities.forEach(({ category }) => {
       if (!config[category.name]) {
         config[category.name] = {
           label: category.name,
@@ -70,7 +66,7 @@ export default function SummaryCard({ activities }: SummaryCardProps) {
     });
 
     return { totalDuration: total, categoryData: data, chartConfig: config };
-  }, [activities]);
+  }, [dailyActivities]);
 
   const totalHours = (totalDuration / 3600).toFixed(2);
 
@@ -101,7 +97,7 @@ export default function SummaryCard({ activities }: SummaryCardProps) {
         </CollapsibleTrigger>
         <CollapsibleContent>
           <CardContent className="pt-6">
-            {activities.length > 0 ? (
+            {dailyActivities.length > 0 ? (
               <ChartContainer config={chartConfig} className="mx-auto aspect-square h-[250px]">
                 <PieChart>
                   <ChartTooltip

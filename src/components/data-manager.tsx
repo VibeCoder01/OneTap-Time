@@ -1,7 +1,7 @@
 
 "use client"
 
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -16,21 +16,16 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { Upload, Download, Database, ChevronsUpDown } from 'lucide-react';
-import type { Category, Activity } from '@/lib/types';
+import { useAppContext } from '@/context/app-context';
 
-interface DataManagerProps {
-  categories: Category[];
-  activities: Activity[];
-  onImport: (data: { activities: Activity[], categories: Category[] }) => void;
-}
-
-export default function DataManager({ activities, categories, onImport }: DataManagerProps) {
+export default function DataManager() {
+  const { activities, categories, importData } = useAppContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   const handleExport = () => {
     const dataToExport = {
-        categories: categories.map(({ icon, ...rest }) => rest),
+        categories: categories.map(({ icon, isUsed, ...rest }: any) => rest),
         activities: activities.map(({ category, ...rest }) => ({
             ...rest,
             category: {
@@ -66,7 +61,7 @@ export default function DataManager({ activities, categories, onImport }: DataMa
           const text = e.target?.result;
           if (typeof text === 'string') {
             const data = JSON.parse(text);
-            onImport(data);
+            importData(data);
           }
         } catch (error) {
           console.error("Failed to parse JSON file", error);

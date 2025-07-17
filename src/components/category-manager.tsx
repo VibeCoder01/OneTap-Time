@@ -48,14 +48,7 @@ import { Edit, Trash2, PlusCircle, Tag, ChevronsUpDown, RotateCcw } from 'lucide
 import type { Category } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { iconMap, OTHER_CATEGORY_ID } from '@/lib/types';
-
-interface CategoryManagerProps {
-  categories: (Category & { isUsed: boolean })[];
-  onAdd: (category: Omit<Category, 'id' | 'icon'>) => void;
-  onUpdate: (category: Category) => void;
-  onDelete: (id: string) => void;
-  onRestoreDefaults: () => void;
-}
+import { useAppContext } from '@/context/app-context';
 
 const availableIcons = Object.keys(iconMap);
 const availableColors = [
@@ -149,7 +142,8 @@ function CategoryForm({
   )
 }
 
-export default function CategoryManager({ categories, onAdd, onUpdate, onDelete, onRestoreDefaults }: CategoryManagerProps) {
+export default function CategoryManager() {
+  const { categoryUsage, addCategory, updateCategory, deleteCategory, restoreDefaultCategories } = useAppContext();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | undefined>(undefined);
   const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
@@ -157,9 +151,9 @@ export default function CategoryManager({ categories, onAdd, onUpdate, onDelete,
 
   const handleSave = (data: Omit<Category, 'id' | 'icon'>) => {
     if (editingCategory) {
-      onUpdate({ ...editingCategory, ...data });
+      updateCategory({ ...editingCategory, ...data });
     } else {
-      onAdd(data);
+      addCategory(data);
     }
     setIsFormOpen(false);
     setEditingCategory(undefined);
@@ -229,14 +223,14 @@ export default function CategoryManager({ categories, onAdd, onUpdate, onDelete,
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={onRestoreDefaults}>Restore</AlertDialogAction>
+                            <AlertDialogAction onClick={restoreDefaultCategories}>Restore</AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
                 </div>
                 <div className="space-y-2">
-                {categories.length > 0 ? (
-                    categories.map((category) => {
+                {categoryUsage.length > 0 ? (
+                    categoryUsage.map((category) => {
                     const CategoryIcon = iconMap[category.iconName];
                     return (
                         <div key={category.id} className="flex items-center gap-4 p-2 bg-card rounded-lg border">
@@ -265,7 +259,7 @@ export default function CategoryManager({ categories, onAdd, onUpdate, onDelete,
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => onDelete(category.id)}>Delete</AlertDialogAction>
+                                    <AlertDialogAction onClick={() => deleteCategory(category.id)}>Delete</AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>

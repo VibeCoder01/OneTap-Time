@@ -44,13 +44,7 @@ import type { Activity, Category } from "@/lib/types";
 import { iconMap } from "@/lib/types";
 import { Trash2, ListChecks, ChevronsUpDown, MoreVertical, Edit, MoreHorizontal } from 'lucide-react';
 import { cn } from "@/lib/utils";
-
-interface ActivityLogProps {
-  activities: Activity[];
-  categories: Category[];
-  onUpdate: (activity: Activity) => void;
-  onDelete: (id: string) => void;
-}
+import { useAppContext } from "@/context/app-context";
 
 const formatDuration = (seconds: number) => {
   if (seconds < 60) return `${seconds}s`;
@@ -61,15 +55,12 @@ const formatDuration = (seconds: number) => {
 
 function EditActivityForm({ 
   activity,
-  categories,
-  onSave,
   onClose,
 }: {
   activity: Activity,
-  categories: Category[],
-  onSave: (data: Activity) => void,
   onClose: () => void,
 }) {
+  const { categories, updateActivity } = useAppContext();
   const [name, setName] = useState(activity.name);
   const [selectedCategoryId, setSelectedCategoryId] = useState(activity.category.id);
   
@@ -80,7 +71,7 @@ function EditActivityForm({
     const selectedCategory = categories.find(c => c.id === selectedCategoryId);
     if (!selectedCategory) return;
 
-    onSave({
+    updateActivity({
       ...activity,
       name,
       category: selectedCategory,
@@ -131,7 +122,8 @@ function EditActivityForm({
   )
 }
 
-export default function ActivityLog({ activities, categories, onUpdate, onDelete }: ActivityLogProps) {
+export default function ActivityLog() {
+  const { activities, deleteActivity } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
 
@@ -139,11 +131,6 @@ export default function ActivityLog({ activities, categories, onUpdate, onDelete
     setEditingActivity(activity);
   };
   
-  const handleSaveEdit = (updatedActivity: Activity) => {
-    onUpdate(updatedActivity);
-    setEditingActivity(null);
-  }
-
   const handleCloseDialog = () => {
     setEditingActivity(null);
   }
@@ -178,8 +165,7 @@ export default function ActivityLog({ activities, categories, onUpdate, onDelete
                 <div className="space-y-4">
                   {activities.length > 0 ? (
                     activities.map((activity) => {
-                      const CategoryIcon = activity.category.icon;
-                      if (!CategoryIcon) return null; // Should not happen if data is consistent
+                      const CategoryIcon = activity.category.icon || MoreHorizontal;
                       return (
                         <DropdownMenu key={activity.id}>
                            <DropdownMenuTrigger asChild>
@@ -207,7 +193,7 @@ export default function ActivityLog({ activities, categories, onUpdate, onDelete
                                 <Edit className="mr-2 h-4 w-4"/>
                                 <span>Edit</span>
                               </DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => onDelete(activity.id)} className="text-destructive">
+                              <DropdownMenuItem onSelect={() => deleteActivity(activity.id)} className="text-destructive">
                                 <Trash2 className="mr-2 h-4 w-4"/>
                                 <span>Delete</span>
                               </DropdownMenuItem>
@@ -235,8 +221,6 @@ export default function ActivityLog({ activities, categories, onUpdate, onDelete
             </DialogHeader>
             <EditActivityForm 
               activity={editingActivity}
-              categories={categories}
-              onSave={handleSaveEdit}
               onClose={handleCloseDialog}
             />
           </DialogContent>

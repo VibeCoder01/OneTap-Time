@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -23,9 +23,9 @@ import {
   Square,
   MoreHorizontal,
 } from "lucide-react";
-import type { Activity, Category } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { iconMap } from "@/lib/types";
+import { useAppContext } from "@/context/app-context";
 
 const formatTime = (seconds: number) => {
   const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
@@ -49,7 +49,6 @@ const getInitialState = (): TimerState => {
     const savedState = localStorage.getItem("timerState");
     if (savedState) {
       const parsedState = JSON.parse(savedState);
-      // Basic validation
       if (parsedState.isRunning && parsedState.startTime) {
         return parsedState;
       }
@@ -60,39 +59,27 @@ const getInitialState = (): TimerState => {
   return { isRunning: false, startTime: null, activityName: "", selectedCategoryId: "" };
 };
 
-
-interface TimerCardProps {
-  onLogActivity: (activity: Omit<Activity, 'id'>) => void;
-  categories: Category[];
-}
-
-export default function TimerCard({ onLogActivity, categories }: TimerCardProps) {
+export default function TimerCard() {
+  const { categories, logActivity } = useAppContext();
   const [timerState, setTimerState] = useState<TimerState>(getInitialState);
   const [elapsedTime, setElapsedTime] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const { isRunning, startTime, activityName, selectedCategoryId } = timerState;
 
-  // Effect to manage the timer interval and calculate elapsed time
   useEffect(() => {
     if (isRunning && startTime) {
-      // Calculate initial elapsed time
       setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
-      
-      // Start the interval
       intervalRef.current = setInterval(() => {
         setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
       }, 1000);
     } else {
-      // Clear interval if not running
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
       setElapsedTime(0);
     }
-
-    // Cleanup function
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -100,7 +87,6 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
     };
   }, [isRunning, startTime]);
   
-  // Effect to save state to localStorage
   useEffect(() => {
     try {
       if(isRunning) {
@@ -113,24 +99,20 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
     }
   }, [timerState, isRunning]);
 
-  // Effect to set a default category when the component loads or categories change
   useEffect(() => {
     if (!isRunning && categories.length > 0 && !categories.some(c => c.id === selectedCategoryId)) {
        setTimerState(prevState => ({ ...prevState, selectedCategoryId: categories[0].id }));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categories, isRunning]);
+  }, [categories, isRunning, selectedCategoryId]);
   
   const handleStartStop = () => {
     if (isRunning) {
-      // --- STOPPING THE TIMER ---
       if(startTime && elapsedTime > 0) {
         const selectedCategory = categories.find(c => c.id === selectedCategoryId);
-        // If category was deleted while timer was running, default to first available
         const categoryToLog = selectedCategory || categories[0];
 
         if (categoryToLog) {
-            onLogActivity({
+            logActivity({
                 name: activityName || "Untitled Activity",
                 category: categoryToLog,
                 startTime: startTime,
@@ -140,7 +122,6 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
         }
       }
       
-      // Reset state for next activity
       setTimerState({
         isRunning: false,
         startTime: null,
@@ -149,7 +130,6 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
       });
 
     } else {
-      // --- STARTING THE TIMER ---
       if (categories.length === 0) {
         alert("Please add a category before starting the timer.");
         return;
@@ -159,7 +139,6 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
         ...prevState,
         isRunning: true,
         startTime: Date.now(),
-        // If no category is selected, default to the first one
         selectedCategoryId: prevState.selectedCategoryId || categories[0]?.id,
       }));
     }
