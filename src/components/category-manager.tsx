@@ -1,7 +1,7 @@
 
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -149,6 +149,15 @@ export default function CategoryManager() {
   const [editingCategory, setEditingCategory] = useState<Category | undefined>(undefined);
   const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
 
+  const sortedCategories = useMemo(() => {
+    const otherCategory = categoryUsage.find(c => c.id === OTHER_CATEGORY_ID);
+    const otherCategories = categoryUsage.filter(c => c.id !== OTHER_CATEGORY_ID);
+
+    otherCategories.sort((a, b) => a.name.localeCompare(b.name));
+
+    return otherCategory ? [...otherCategories, otherCategory] : otherCategories;
+  }, [categoryUsage]);
+
 
   const handleSave = (data: Omit<Category, 'id' | 'icon'>) => {
     if (editingCategory) {
@@ -226,7 +235,7 @@ export default function CategoryManager() {
                             <AlertDialogHeader>
                             <AlertDialogTitle>Restore default categories?</AlertDialogTitle>
                             <AlertDialogDescription>
-                                This will add any missing default categories and reset any that you have modified. It will not remove custom categories you created.
+                                This will add any missing default categories. It will not remove custom categories you created or overwrite existing ones.
                             </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -237,8 +246,8 @@ export default function CategoryManager() {
                     </AlertDialog>
                 </div>
                 <div className="space-y-2">
-                {categoryUsage.length > 0 ? (
-                    categoryUsage.map((category) => {
+                {sortedCategories.length > 0 ? (
+                    sortedCategories.map((category) => {
                     const CategoryIcon = iconMap[category.iconName] || (() => <></>);
                     return (
                         <div key={category.id} className="flex items-center gap-4 p-2 bg-card rounded-lg border">
