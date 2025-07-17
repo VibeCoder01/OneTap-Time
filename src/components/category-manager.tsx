@@ -243,9 +243,11 @@ export default function CategoryManager({ categories, onAdd, onUpdate, onDelete,
                         <CategoryIcon className={cn("h-5 w-5", category.color)} />
                         <p className="flex-grow font-medium text-foreground">{category.name}</p>
                         <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => openEditDialog(category)}>
-                            <Edit className="h-4 w-4" />
-                            </Button>
+                            {category.id !== 'other' && (
+                              <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => openEditDialog(category)}>
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            )}
                             
                             {category.id !== 'other' && (
                               <AlertDialog>
