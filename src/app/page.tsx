@@ -105,34 +105,17 @@ export default function Home() {
   
   const handleRestoreDefaultCategories = () => {
     setCategories(prev => {
-        const newCategories = [...prev];
-        const categoriesToAdd = [];
+        const currentCategories = [...prev];
+        const categoriesToAdd: Category[] = [];
 
-        for (const defaultCategory of initialCategories) {
-            const existingCategoryIndex = newCategories.findIndex(c => c.id === defaultCategory.id);
-            
-            if (existingCategoryIndex !== -1) {
-                // Category with default ID exists, check if it was modified
-                const existingCategory = newCategories[existingCategoryIndex];
-                const isModified = existingCategory.name !== defaultCategory.name ||
-                                   existingCategory.color !== defaultCategory.color ||
-                                   existingCategory.iconName !== defaultCategory.iconName;
-
-                if (isModified) {
-                    // It's a modified default. Treat it as a custom category by giving it a new ID.
-                    const newId = crypto.randomUUID();
-                    newCategories[existingCategoryIndex] = { ...existingCategory, id: newId };
-                    
-                    // Now that the original ID is free, we can re-add the default category.
-                    categoriesToAdd.push(defaultCategory);
-                }
-            } else {
-                // Default category doesn't exist at all, so add it.
+        initialCategories.forEach(defaultCategory => {
+            const isMissing = !currentCategories.some(c => c.id === defaultCategory.id);
+            if (isMissing) {
                 categoriesToAdd.push(defaultCategory);
             }
-        }
+        });
         
-        return [...newCategories, ...categoriesToAdd];
+        return [...currentCategories, ...categoriesToAdd];
     });
 };
 
