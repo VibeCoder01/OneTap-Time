@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -42,19 +43,44 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
   const [isRunning, setIsRunning] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [activityName, setActivityName] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState(categories[0]?.id || "");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const startTimeRef = useRef<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (categories.length > 0 && !selectedCategoryId) {
-      setSelectedCategoryId(categories[0].id);
+    // On initial load, try to load state from localStorage
+    const savedIsRunning = localStorage.getItem("timerIsRunning") === "true";
+    const savedStartTime = localStorage.getItem("timerStartTime");
+    const savedActivityName = localStorage.getItem("timerActivityName");
+    const savedSelectedCategoryId = localStorage.getItem("timerSelectedCategoryId");
+
+    if (savedIsRunning && savedStartTime) {
+      const startTime = parseInt(savedStartTime, 10);
+      const now = Date.now();
+      const elapsed = Math.floor((now - startTime) / 1000);
+      
+      startTimeRef.current = startTime;
+      setElapsedTime(elapsed);
+      setIsRunning(true);
+      setActivityName(savedActivityName || "");
+      setSelectedCategoryId(savedSelectedCategoryId || categories[0]?.id || "");
+    } else {
+        if (categories.length > 0 && !selectedCategoryId) {
+          setSelectedCategoryId(categories[0].id);
+        }
     }
-  }, [categories, selectedCategoryId]);
+  }, [categories]);
 
   useEffect(() => {
     if (isRunning) {
-      startTimeRef.current = Date.now() - elapsedTime * 1000;
+        if(startTimeRef.current === null) {
+            startTimeRef.current = Date.now() - elapsedTime * 1000;
+        }
+      localStorage.setItem("timerIsRunning", "true");
+      localStorage.setItem("timerStartTime", String(startTimeRef.current));
+      localStorage.setItem("timerActivityName", activityName);
+      localStorage.setItem("timerSelectedCategoryId", selectedCategoryId);
+      
       intervalRef.current = setInterval(() => {
         if (startTimeRef.current) {
           const now = Date.now();
@@ -63,6 +89,10 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
         }
       }, 1000);
     } else {
+      localStorage.removeItem("timerIsRunning");
+      localStorage.removeItem("timerStartTime");
+      localStorage.removeItem("timerActivityName");
+      localStorage.removeItem("timerSelectedCategoryId");
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
@@ -73,7 +103,7 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, elapsedTime]);
+  }, [isRunning, elapsedTime, activityName, selectedCategoryId]);
 
   const handleStartStop = () => {
     if (isRunning) {
@@ -81,20 +111,29 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
       setIsRunning(false);
       
       if(startTimeRef.current && elapsedTime > 0) {
-        const selectedCategory = categories.find(c => c.id === selectedCategoryId)!;
-        onLogActivity({
-          name: activityName || "Untitled Activity",
-          category: selectedCategory,
-          startTime: startTimeRef.current,
-          endTime: Date.now(),
-          duration: elapsedTime,
-        });
+        const selectedCategory = categories.find(c => c.id === selectedCategoryId);
+        // If category was deleted while timer was running, default to first available
+        const categoryToLog = selectedCategory || categories[0];
+
+        if (categoryToLog) {
+            onLogActivity({
+                name: activityName || "Untitled Activity",
+                category: categoryToLog,
+                startTime: startTimeRef.current,
+                endTime: Date.now(),
+                duration: elapsedTime,
+            });
+        }
       }
       
       // Reset for next activity
       setActivityName("");
       setElapsedTime(0);
       startTimeRef.current = null;
+      if (categories.length > 0) {
+        setSelectedCategoryId(categories[0].id)
+      }
+
     } else {
       // Starting the timer
       if (categories.length === 0) {
