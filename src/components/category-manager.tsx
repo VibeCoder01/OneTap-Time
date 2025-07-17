@@ -47,7 +47,7 @@ import {
 import { Edit, Trash2, PlusCircle, Tag, ChevronsUpDown, RotateCcw } from 'lucide-react';
 import type { Category } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { iconMap } from '@/lib/types';
+import { iconMap, OTHER_CATEGORY_ID } from '@/lib/types';
 
 interface CategoryManagerProps {
   categories: (Category & { isUsed: boolean })[];
@@ -243,13 +243,13 @@ export default function CategoryManager({ categories, onAdd, onUpdate, onDelete,
                         <CategoryIcon className={cn("h-5 w-5", category.color)} />
                         <p className="flex-grow font-medium text-foreground">{category.name}</p>
                         <div className="flex items-center gap-2">
-                            {category.id !== 'other' && (
+                            {category.id !== OTHER_CATEGORY_ID && (
                               <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => openEditDialog(category)}>
                                 <Edit className="h-4 w-4" />
                               </Button>
                             )}
                             
-                            {category.id !== 'other' && (
+                            {category.id !== OTHER_CATEGORY_ID && (
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                     <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive">

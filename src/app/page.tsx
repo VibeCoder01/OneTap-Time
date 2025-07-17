@@ -9,7 +9,7 @@ import SummaryCard from '@/components/summary-card';
 import CategoryManager from '@/components/category-manager';
 import DataManager from '@/components/data-manager';
 import type { Activity, Category } from '@/lib/types';
-import { iconMap, initialCategories } from '@/lib/types';
+import { iconMap, initialCategories, OTHER_CATEGORY_ID } from '@/lib/types';
 import { MoreHorizontal } from 'lucide-react';
 
 
@@ -92,7 +92,7 @@ export default function Home() {
   };
 
   const handleDeleteCategory = (id: string) => {
-    const otherCategory = categories.find(c => c.id === 'other') || categories[0];
+    const otherCategory = categories.find(c => c.id === OTHER_CATEGORY_ID) || categories[0];
     if (!otherCategory) return; // Should not happen
 
     setActivities(prevActivities => 
