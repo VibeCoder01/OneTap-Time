@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/chart";
 import { PieChart, Pie, Cell } from "recharts";
 import { Clock, ChevronsUpDown } from 'lucide-react';
-import { iconMap } from "@/lib/types";
+import { iconMap } from "@/lib/data";
 import { useAppContext } from "@/context/app-context";
 
 

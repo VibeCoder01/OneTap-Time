@@ -24,7 +24,7 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { iconMap } from "@/lib/types";
+import { iconMap } from "@/lib/data";
 import { useAppContext } from "@/context/app-context";
 
 const formatTime = (seconds: number) => {

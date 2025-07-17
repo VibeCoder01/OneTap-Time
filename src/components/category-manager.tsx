@@ -47,7 +47,7 @@ import {
 import { Edit, Trash2, PlusCircle, Tag, ChevronsUpDown, RotateCcw } from 'lucide-react';
 import type { Category } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { iconMap, OTHER_CATEGORY_ID } from '@/lib/types';
+import { iconMap, OTHER_CATEGORY_ID } from '@/lib/data';
 import { useAppContext } from '@/context/app-context';
 
 const availableIcons = Object.keys(iconMap);
@@ -64,9 +64,11 @@ const availableColors = [
 function CategoryForm({ 
   category,
   onSave,
+  onClose,
 }: {
   category?: Category,
   onSave: (data: Omit<Category, 'id' | 'icon'>) => void,
+  onClose: () => void,
 }) {
   const [name, setName] = useState(category?.name || "");
   const [color, setColor] = useState(category?.color || availableColors[0].value);
@@ -76,6 +78,7 @@ function CategoryForm({
     e.preventDefault();
     if (!name) return;
     onSave({ name, color, iconName });
+    onClose();
   };
 
   return (
@@ -134,9 +137,7 @@ function CategoryForm({
         </div>
       </div>
       <DialogFooter>
-        <DialogClose asChild>
-          <Button type="submit">Save Category</Button>
-        </DialogClose>
+        <Button type="submit">Save Category</Button>
       </DialogFooter>
     </form>
   )
@@ -155,6 +156,9 @@ export default function CategoryManager() {
     } else {
       addCategory(data);
     }
+  }
+
+  const handleCloseForm = () => {
     setIsFormOpen(false);
     setEditingCategory(undefined);
   }
@@ -205,7 +209,11 @@ export default function CategoryManager() {
                             <DialogHeader>
                                 <DialogTitle>{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
                             </DialogHeader>
-                            <CategoryForm category={editingCategory} onSave={handleSave} />
+                            <CategoryForm 
+                                category={editingCategory} 
+                                onSave={handleSave}
+                                onClose={handleCloseForm} 
+                            />
                         </DialogContent>
                     </Dialog>
                     <AlertDialog>
@@ -218,7 +226,7 @@ export default function CategoryManager() {
                             <AlertDialogHeader>
                             <AlertDialogTitle>Restore default categories?</AlertDialogTitle>
                             <AlertDialogDescription>
-                                This will add any missing default categories. It will not remove any custom categories you have created.
+                                This will add any missing default categories and reset any that you have modified. It will not remove custom categories you created.
                             </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -231,7 +239,7 @@ export default function CategoryManager() {
                 <div className="space-y-2">
                 {categoryUsage.length > 0 ? (
                     categoryUsage.map((category) => {
-                    const CategoryIcon = iconMap[category.iconName];
+                    const CategoryIcon = iconMap[category.iconName] || (() => <></>);
                     return (
                         <div key={category.id} className="flex items-center gap-4 p-2 bg-card rounded-lg border">
                         <CategoryIcon className={cn("h-5 w-5", category.color)} />

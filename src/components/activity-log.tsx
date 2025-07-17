@@ -41,7 +41,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Activity, Category } from "@/lib/types";
-import { iconMap } from "@/lib/types";
+import { iconMap } from "@/lib/data";
 import { Trash2, ListChecks, ChevronsUpDown, MoreVertical, Edit, MoreHorizontal } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useAppContext } from "@/context/app-context";

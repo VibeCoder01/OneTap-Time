@@ -1,8 +1,9 @@
+
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import type { Activity, Category } from '@/lib/types';
-import { iconMap, initialCategories, OTHER_CATEGORY_ID } from '@/lib/types';
+import { initialCategories, OTHER_CATEGORY_ID, iconMap } from '@/lib/data';
 import { MoreHorizontal } from 'lucide-react';
 
 interface AppContextType {
@@ -18,14 +19,15 @@ interface AppContextType {
     updateCategory: (updatedCategory: Category) => void;
     deleteCategory: (id: string) => void;
     restoreDefaultCategories: () => void;
-    importData: (data: { activities: Activity[], categories: Category[] }) => void;
+    importData: (data: { activities: Activity[], categories: Omit<Category, 'icon'>[] }) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const getInitialData = () => {
     if (typeof window === 'undefined') {
-        return { activities: [], categories: initialCategories };
+        const categoriesWithIcons = initialCategories.map(c => ({...c, icon: iconMap[c.iconName] || MoreHorizontal}));
+        return { activities: [], categories: categoriesWithIcons };
     }
     try {
         const savedData = localStorage.getItem('oneTapData');
@@ -49,13 +51,14 @@ const getInitialData = () => {
     } catch (error) {
         console.error("Failed to load data from localStorage", error);
     }
-    return { activities: [], categories: initialCategories };
+    const categoriesWithIcons = initialCategories.map(c => ({...c, icon: iconMap[c.iconName] || MoreHorizontal}));
+    return { activities: [], categories: categoriesWithIcons };
 };
 
 
 export function AppProvider({ children }: { children: ReactNode }) {
     const [activities, setActivities] = useState<Activity[]>([]);
-    const [categories, setCategories] = useState<Category[]>(initialCategories);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
@@ -102,34 +105,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setActivities(prev => prev.filter(activity => activity.id !== id));
     };
 
-    const addCategory = (category: Omit<Category, 'id'>) => {
-        setCategories(prev => [...prev, { ...category, id: crypto.randomUUID() }]);
+    const addCategory = (category: Omit<Category, 'id' | 'icon'>) => {
+        const newCategory = { ...category, id: crypto.randomUUID(), icon: iconMap[category.iconName] || MoreHorizontal };
+        setCategories(prev => [...prev, newCategory]);
     };
 
     const updateCategory = (updatedCategory: Category) => {
-        setCategories(prev => prev.map(c => c.id === updatedCategory.id ? updatedCategory : c));
-        setActivities(prev => prev.map(a => a.category.id === updatedCategory.id ? { ...a, category: { ...updatedCategory, icon: iconMap[updatedCategory.iconName] } } : a));
+        const categoryWithIcon = { ...updatedCategory, icon: iconMap[updatedCategory.iconName] || MoreHorizontal };
+        setCategories(prev => prev.map(c => c.id === updatedCategory.id ? categoryWithIcon : c));
+        setActivities(prev => prev.map(a => a.category.id === updatedCategory.id ? { ...a, category: categoryWithIcon } : a));
     };
 
     const deleteCategory = (id: string) => {
         const otherCategory = categories.find(c => c.id === OTHER_CATEGORY_ID) || categories[0];
         if (!otherCategory) return;
 
-        setActivities(prevActivities => 
-            prevActivities.map(activity => 
-                activity.category.id === id ? { ...activity, category: { ...otherCategory, icon: iconMap[otherCategory.iconName] } } : activity
+        setActivities(prevActivities =>
+            prevActivities.map(activity =>
+                activity.category.id === id ? { ...activity, category: otherCategory } : activity
             )
         );
         setCategories(prev => prev.filter(category => category.id !== id));
     };
-    
+
     const restoreDefaultCategories = () => {
         const defaultCategoryIds = new Set(initialCategories.map(c => c.id));
         const customCategories = categories.filter(c => !defaultCategoryIds.has(c.id));
-        setCategories([...initialCategories, ...customCategories]);
+        const finalCategories = [...customCategories, ...initialCategories].map(c => ({
+            ...c,
+            icon: iconMap[c.iconName] || MoreHorizontal
+        }));
+        setCategories(finalCategories);
     };
-    
-    const importData = (data: { activities: Activity[], categories: Category[] }) => {
+
+    const importData = (data: { activities: Activity[], categories: Omit<Category, 'icon'>[] }) => {
         if (data && Array.isArray(data.activities) && Array.isArray(data.categories)) {
              const activitiesWithIcons = data.activities.map(a => ({
                 ...a,
@@ -148,7 +157,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             alert("Invalid data file format.");
         }
     };
-    
+
     const dailyActivities = useMemo(() => {
         const today = new Date();
         return activities.filter(activity => {
@@ -167,6 +176,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             isUsed: activities.some(a => a.category.id === c.id)
         }));
     }, [categories, activities]);
+
+
 
     const value = {
         activities,
