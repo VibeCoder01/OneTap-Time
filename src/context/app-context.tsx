@@ -129,20 +129,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 const existingCategoryIndex = newCategories.findIndex(c => c.id === defaultCategory.id);
                 
                 if (existingCategoryIndex !== -1) {
-                    // Category with default ID exists. Check if it has been modified.
                     const existingCategory = newCategories[existingCategoryIndex];
                     const isModified = existingCategory.name !== defaultCategory.name || 
                                        existingCategory.color !== defaultCategory.color || 
                                        existingCategory.iconName !== defaultCategory.iconName;
 
                     if (isModified) {
-                        // It was modified. Treat the modified one as a new custom category
-                        // by giving it a new ID, and re-add the original default.
                         newCategories[existingCategoryIndex] = { ...existingCategory, id: crypto.randomUUID() }; 
                         categoriesToAdd.push(defaultCategory);
                     }
                 } else {
-                    // Default category was deleted, add it back.
                     categoriesToAdd.push(defaultCategory);
                 }
             });
