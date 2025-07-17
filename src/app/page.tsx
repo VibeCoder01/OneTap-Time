@@ -104,21 +104,11 @@ export default function Home() {
   };
   
   const handleRestoreDefaultCategories = () => {
-    const defaultCategories = initialCategories;
-    const otherCategory = defaultCategories.find(c => c.id === 'other');
-    if (!otherCategory) return;
-
-    const defaultCategoryIds = new Set(defaultCategories.map(c => c.id));
-
-    setActivities(prevActivities => 
-      prevActivities.map(activity => {
-        if (!defaultCategoryIds.has(activity.category.id)) {
-          return { ...activity, category: otherCategory };
-        }
-        return activity;
-      })
-    );
-    setCategories(defaultCategories);
+    setCategories(prev => {
+      const currentCategoryIds = new Set(prev.map(c => c.id));
+      const missingDefaults = initialCategories.filter(c => !currentCategoryIds.has(c.id));
+      return [...prev, ...missingDefaults];
+    });
   };
   
   const handleImportData = (data: { activities: Activity[], categories: Category[] }) => {

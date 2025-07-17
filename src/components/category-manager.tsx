@@ -222,9 +222,9 @@ export default function CategoryManager({ categories, onAdd, onUpdate, onDelete,
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                             <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogTitle>Restore default categories?</AlertDialogTitle>
                             <AlertDialogDescription>
-                                This will replace all your current categories with the default set. Activities using custom categories will be reassigned to "Other". This action cannot be undone.
+                                This will add any missing default categories. It will not remove any custom categories you have created.
                             </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
