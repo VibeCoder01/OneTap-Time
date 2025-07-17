@@ -63,14 +63,15 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
         startTimeRef.current = startTime;
         setElapsedTime(elapsed);
         setActivityName(savedActivityName || "");
-        // Ensure the selected category exists, otherwise default
+        
         const categoryExists = categories.some(c => c.id === savedSelectedCategoryId);
         setSelectedCategoryId(savedSelectedCategoryId && categoryExists ? savedSelectedCategoryId : categories[0]?.id || "");
         setIsRunning(true);
       } else {
-          if (categories.length > 0 && !selectedCategoryId) {
+        // If not running, ensure a default category is selected if available
+        if (categories.length > 0 && !selectedCategoryId) {
             setSelectedCategoryId(categories[0].id);
-          }
+        }
       }
     } catch (error) {
         console.error("Could not read from localStorage", error);
@@ -79,18 +80,22 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
             setSelectedCategoryId(categories[0].id);
         }
     }
+  // This effect should only run once on mount, with categories as a dependency to set initial category.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categories]);
 
   // Effect for managing the interval and saving state to localStorage
   useEffect(() => {
     if (isRunning) {
-      // If we are running, but don't have a start time, it's a new start.
-      if (startTimeRef.current === null) {
-        startTimeRef.current = Date.now() - elapsedTime * 1000;
-      }
-      
-      // Save state to localStorage
+      // If running, set up the interval to update the elapsed time
+      intervalRef.current = setInterval(() => {
+        if (startTimeRef.current) {
+          const now = Date.now();
+          setElapsedTime(Math.floor((now - startTimeRef.current) / 1000));
+        }
+      }, 1000);
+
+      // Save the current running state to localStorage
       try {
         localStorage.setItem("timerIsRunning", "true");
         localStorage.setItem("timerStartTime", String(startTimeRef.current));
@@ -99,17 +104,8 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
       } catch (error) {
         console.error("Could not write to localStorage", error);
       }
-      
-      // Start the interval
-      intervalRef.current = setInterval(() => {
-        if (startTimeRef.current) {
-          const now = Date.now();
-          setElapsedTime(Math.floor((now - startTimeRef.current) / 1000));
-        }
-      }, 1000);
-
     } else {
-      // Clear interval and localStorage when timer stops
+      // If not running, clear the interval and remove items from localStorage
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
@@ -123,17 +119,17 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
       }
     }
 
-    // Cleanup function
+    // Cleanup function to clear the interval when the component unmounts or dependencies change
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, activityName, selectedCategoryId, elapsedTime]);
+  }, [isRunning, activityName, selectedCategoryId]);
 
   const handleStartStop = () => {
     if (isRunning) {
-      // Stopping the timer
+      // --- STOPPING THE TIMER ---
       if(startTimeRef.current && elapsedTime > 0) {
         const selectedCategory = categories.find(c => c.id === selectedCategoryId);
         // If category was deleted while timer was running, default to first available
@@ -150,7 +146,7 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
         }
       }
       
-      // Reset for next activity
+      // Reset state for next activity
       setIsRunning(false);
       setActivityName("");
       setElapsedTime(0);
@@ -160,11 +156,15 @@ export default function TimerCard({ onLogActivity, categories }: TimerCardProps)
       }
 
     } else {
-      // Starting the timer
+      // --- STARTING THE TIMER ---
       if (categories.length === 0) {
         alert("Please add a category before starting the timer.");
         return;
       }
+      
+      // Set the start time relative to any existing elapsed time (which should be 0 unless there's a bug)
+      startTimeRef.current = Date.now() - elapsedTime * 1000;
+      
       // If no category is selected, default to the first one
       if (!selectedCategoryId && categories.length > 0) {
         setSelectedCategoryId(categories[0].id)
