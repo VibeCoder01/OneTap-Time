@@ -121,29 +121,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     
     const restoreDefaultCategories = () => {
-        setCategories(prev => {
-            let newCategories = [...prev];
-            const categoriesToAdd: Category[] = [];
+        setCategories(currentCategories => {
+            const defaultCategoryMap = new Map(initialCategories.map(c => [c.id, c]));
 
-            initialCategories.forEach(defaultCategory => {
-                const existingCategoryIndex = newCategories.findIndex(c => c.id === defaultCategory.id);
-                
-                if (existingCategoryIndex !== -1) {
-                    const existingCategory = newCategories[existingCategoryIndex];
-                    const isModified = existingCategory.name !== defaultCategory.name || 
-                                       existingCategory.color !== defaultCategory.color || 
-                                       existingCategory.iconName !== defaultCategory.iconName;
-
-                    if (isModified) {
-                        newCategories[existingCategoryIndex] = { ...existingCategory, id: crypto.randomUUID() }; 
-                        categoriesToAdd.push(defaultCategory);
-                    }
-                } else {
-                    categoriesToAdd.push(defaultCategory);
+            const customOrModifiedCategories = currentCategories.filter(cat => {
+                const defaultCat = defaultCategoryMap.get(cat.id);
+                // Keep if it's not a default category, or if it is a default but has been modified
+                return !defaultCat || (defaultCat.name !== cat.name || defaultCat.color !== cat.color || defaultCat.iconName !== cat.iconName);
+            }).map(cat => {
+                const defaultCat = defaultCategoryMap.get(cat.id);
+                // If it was a modified default, give it a new ID to make it a true custom category
+                if (defaultCat) {
+                    return { ...cat, id: crypto.randomUUID() };
                 }
+                return cat;
             });
+
+            // Combine the now-safe custom categories with the original, pristine default set.
+            const newCategories = [...customOrModifiedCategories, ...initialCategories];
             
-            return [...newCategories, ...categoriesToAdd];
+            // Deduplicate to be absolutely safe, preferring items from the new custom list
+            const finalCategoriesMap = new Map(newCategories.map(c => [c.id, c]));
+            
+            return Array.from(finalCategoriesMap.values());
         });
     };
     
