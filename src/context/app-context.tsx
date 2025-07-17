@@ -125,17 +125,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     
     const restoreDefaultCategories = () => {
-        // Create a Set of the original default category IDs for efficient lookup.
-        const defaultCategoryIds = new Set(initialCategories.map(c => c.id));
-    
-        // Filter the current categories to get only the true custom ones.
-        // A category is custom if its ID is NOT in the default set.
-        // This correctly discards any modified defaults, preventing ID collisions.
-        const customCategories = categories.filter(c => !defaultCategoryIds.has(c.id));
-
-        // Rebuild the list from a clean slate: custom categories plus the original defaults.
-        // This guarantees unique keys.
-        setCategories([...customCategories, ...initialCategories]);
+        setCategories(prevCategories => {
+            const defaultCategoryIds = new Set(initialCategories.map(c => c.id));
+            const customCategories = prevCategories.filter(c => !defaultCategoryIds.has(c.id));
+            return [...customCategories, ...initialCategories];
+        });
     };
     
     const importData = (data: { activities: Activity[], categories: Category[] }) => {
