@@ -129,18 +129,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
 
     const restoreDefaultCategories = () => {
-        const defaultCategoryIds = new Set(initialCategories.map(c => c.id));
-        
-        // Keep only the truly custom categories (those not in the original default set)
-        const customCategories = categories.filter(c => !defaultCategoryIds.has(c.id));
-        
-        // Combine the user's custom categories with the pristine default categories
-        const finalCategories = [...customCategories, ...initialCategories].map(c => ({
-            ...c,
-            icon: iconMap[c.iconName] || MoreHorizontal
-        }));
+        setCategories(prevCategories => {
+            const defaultCategoryIds = new Set(initialCategories.map(c => c.id));
+            
+            // Keep only the truly custom categories (those not in the original default set)
+            const customCategories = prevCategories.filter(c => !defaultCategoryIds.has(c.id));
+            
+            // Combine the user's custom categories with the pristine default categories
+            const finalCategories = [...customCategories, ...initialCategories].map(c => ({
+                ...c,
+                icon: iconMap[c.iconName] || MoreHorizontal
+            }));
 
-        setCategories(finalCategories);
+            return finalCategories;
+        });
     };
 
     const importData = (data: { activities: Activity[], categories: Omit<Category, 'icon'>[] }) => {
