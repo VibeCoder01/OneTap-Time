@@ -117,8 +117,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
 
     const deleteCategory = (id: string) => {
-        const otherCategory = categories.find(c => c.id === OTHER_CATEGORY_ID) || categories[0];
-        if (!otherCategory) return;
+        // Prevent deletion of the special "Other" category
+        if (id === OTHER_CATEGORY_ID) {
+            return; 
+        }
+
+        const otherCategory = categories.find(c => c.id === OTHER_CATEGORY_ID);
+
+        // This should theoretically not happen if the "Other" category is protected
+        if (!otherCategory) {
+            console.error("Could not find 'Other' category to reassign activities to.");
+            return;
+        }
 
         setActivities(prevActivities =>
             prevActivities.map(activity =>
@@ -136,6 +146,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const customCategories = prevCategories.filter(c => !defaultCategoryIds.has(c.id));
             
             // Combine the user's custom categories with the pristine default categories
+            // This ensures no modified defaults are carried over, preventing key conflicts.
             const finalCategories = [...initialCategories, ...customCategories].map(c => ({
                 ...c,
                 icon: iconMap[c.iconName] || MoreHorizontal
