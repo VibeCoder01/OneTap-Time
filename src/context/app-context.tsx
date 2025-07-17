@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
@@ -127,7 +126,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const restoreDefaultCategories = () => {
         const defaultCategoryIds = new Set(initialCategories.map(c => c.id));
         const customCategories = categories.filter(c => !defaultCategoryIds.has(c.id));
-        setCategories([...customCategories, ...initialCategories]);
+        setCategories([...initialCategories, ...customCategories]);
     };
     
     const importData = (data: { activities: Activity[], categories: Category[] }) => {
