@@ -122,17 +122,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     
     const restoreDefaultCategories = () => {
         setCategories(prev => {
-            const newCategories = [...prev];
+            let newCategories = [...prev];
             const categoriesToAdd: Category[] = [];
 
             initialCategories.forEach(defaultCategory => {
-                const existingCategory = newCategories.find(c => c.id === defaultCategory.id);
-
-                if (!existingCategory) {
-                    // Default category was deleted, add it back.
-                    categoriesToAdd.push(defaultCategory);
-                } else {
-                    // Default category exists, check if it was modified.
+                const existingCategoryIndex = newCategories.findIndex(c => c.id === defaultCategory.id);
+                
+                if (existingCategoryIndex !== -1) {
+                    // Category with default ID exists. Check if it has been modified.
+                    const existingCategory = newCategories[existingCategoryIndex];
                     const isModified = existingCategory.name !== defaultCategory.name || 
                                        existingCategory.color !== defaultCategory.color || 
                                        existingCategory.iconName !== defaultCategory.iconName;
@@ -140,9 +138,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
                     if (isModified) {
                         // It was modified. Treat the modified one as a new custom category
                         // by giving it a new ID, and re-add the original default.
-                        existingCategory.id = crypto.randomUUID(); 
+                        newCategories[existingCategoryIndex] = { ...existingCategory, id: crypto.randomUUID() }; 
                         categoriesToAdd.push(defaultCategory);
                     }
+                } else {
+                    // Default category was deleted, add it back.
+                    categoriesToAdd.push(defaultCategory);
                 }
             });
             
