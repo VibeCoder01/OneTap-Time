@@ -105,37 +105,34 @@ export default function Home() {
   
   const handleRestoreDefaultCategories = () => {
     setCategories(prev => {
-        const currentCategories = [...prev];
+        const newCategories = [...prev];
         const categoriesToAdd = [];
 
         for (const defaultCategory of initialCategories) {
-            const existingCategory = currentCategories.find(c => c.id === defaultCategory.id);
-            const isModified = existingCategory && (
-                existingCategory.name !== defaultCategory.name ||
-                existingCategory.color !== defaultCategory.color ||
-                existingCategory.iconName !== defaultCategory.iconName
-            );
+            const existingCategoryIndex = newCategories.findIndex(c => c.id === defaultCategory.id);
+            
+            if (existingCategoryIndex !== -1) {
+                // Category with default ID exists, check if it was modified
+                const existingCategory = newCategories[existingCategoryIndex];
+                const isModified = existingCategory.name !== defaultCategory.name ||
+                                   existingCategory.color !== defaultCategory.color ||
+                                   existingCategory.iconName !== defaultCategory.iconName;
 
-            // If it doesn't exist, or it exists but has been modified
-            if (!existingCategory || isModified) {
-                // If it was modified, we keep the modified one (it's a custom category now)
-                // and we add the original default back in.
+                if (isModified) {
+                    // It's a modified default. Treat it as a custom category by giving it a new ID.
+                    const newId = crypto.randomUUID();
+                    newCategories[existingCategoryIndex] = { ...existingCategory, id: newId };
+                    
+                    // Now that the original ID is free, we can re-add the default category.
+                    categoriesToAdd.push(defaultCategory);
+                }
+            } else {
+                // Default category doesn't exist at all, so add it.
                 categoriesToAdd.push(defaultCategory);
             }
         }
-
-        // To prevent adding duplicates if restore is clicked multiple times,
-        // we filter out categories we are about to add if they already exist with the exact same properties.
-        const finalCategoriesToAdd = categoriesToAdd.filter(toAdd => 
-            !currentCategories.some(current => 
-                current.id === toAdd.id &&
-                current.name === toAdd.name &&
-                current.color === toAdd.color &&
-                current.iconName === toAdd.iconName
-            )
-        );
-
-        return [...currentCategories, ...finalCategoriesToAdd];
+        
+        return [...newCategories, ...categoriesToAdd];
     });
 };
 
