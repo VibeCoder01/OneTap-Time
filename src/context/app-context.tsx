@@ -136,7 +136,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const customCategories = prevCategories.filter(c => !defaultCategoryIds.has(c.id));
             
             // Combine the user's custom categories with the pristine default categories
-            const finalCategories = [...customCategories, ...initialCategories].map(c => ({
+            const finalCategories = [...initialCategories, ...customCategories].map(c => ({
                 ...c,
                 icon: iconMap[c.iconName] || MoreHorizontal
             }));
