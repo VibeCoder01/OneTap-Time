@@ -122,17 +122,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
     
     const restoreDefaultCategories = () => {
         setCategories(prev => {
-            const currentCategories = [...prev];
+            const newCategories = [...prev];
             const categoriesToAdd: Category[] = [];
 
             initialCategories.forEach(defaultCategory => {
-                const isMissing = !currentCategories.some(c => c.id === defaultCategory.id);
-                if (isMissing) {
+                const existingCategory = newCategories.find(c => c.id === defaultCategory.id);
+
+                if (!existingCategory) {
+                    // Default category was deleted, add it back.
                     categoriesToAdd.push(defaultCategory);
+                } else {
+                    // Default category exists, check if it was modified.
+                    const isModified = existingCategory.name !== defaultCategory.name || 
+                                       existingCategory.color !== defaultCategory.color || 
+                                       existingCategory.iconName !== defaultCategory.iconName;
+
+                    if (isModified) {
+                        // It was modified. Treat the modified one as a new custom category
+                        // by giving it a new ID, and re-add the original default.
+                        existingCategory.id = crypto.randomUUID(); 
+                        categoriesToAdd.push(defaultCategory);
+                    }
                 }
             });
             
-            return [...currentCategories, ...categoriesToAdd];
+            return [...newCategories, ...categoriesToAdd];
         });
     };
     
