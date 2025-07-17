@@ -125,11 +125,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     
     const restoreDefaultCategories = () => {
-        setCategories(prevCategories => {
-            const defaultCategoryIds = new Set(initialCategories.map(c => c.id));
-            const customCategories = prevCategories.filter(c => !defaultCategoryIds.has(c.id));
-            return [...customCategories, ...initialCategories];
-        });
+        const defaultCategoryIds = new Set(initialCategories.map(c => c.id));
+        const customCategories = categories.filter(c => !defaultCategoryIds.has(c.id));
+        setCategories([...customCategories, ...initialCategories]);
     };
     
     const importData = (data: { activities: Activity[], categories: Category[] }) => {
