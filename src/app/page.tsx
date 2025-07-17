@@ -105,11 +105,40 @@ export default function Home() {
   
   const handleRestoreDefaultCategories = () => {
     setCategories(prev => {
-      const currentCategoryIds = new Set(prev.map(c => c.id));
-      const missingDefaults = initialCategories.filter(c => !currentCategoryIds.has(c.id));
-      return [...prev, ...missingDefaults];
+        const currentCategories = [...prev];
+        const categoriesToAdd = [];
+
+        for (const defaultCategory of initialCategories) {
+            const existingCategory = currentCategories.find(c => c.id === defaultCategory.id);
+            const isModified = existingCategory && (
+                existingCategory.name !== defaultCategory.name ||
+                existingCategory.color !== defaultCategory.color ||
+                existingCategory.iconName !== defaultCategory.iconName
+            );
+
+            // If it doesn't exist, or it exists but has been modified
+            if (!existingCategory || isModified) {
+                // If it was modified, we keep the modified one (it's a custom category now)
+                // and we add the original default back in.
+                categoriesToAdd.push(defaultCategory);
+            }
+        }
+
+        // To prevent adding duplicates if restore is clicked multiple times,
+        // we filter out categories we are about to add if they already exist with the exact same properties.
+        const finalCategoriesToAdd = categoriesToAdd.filter(toAdd => 
+            !currentCategories.some(current => 
+                current.id === toAdd.id &&
+                current.name === toAdd.name &&
+                current.color === toAdd.color &&
+                current.iconName === toAdd.iconName
+            )
+        );
+
+        return [...currentCategories, ...finalCategoriesToAdd];
     });
-  };
+};
+
   
   const handleImportData = (data: { activities: Activity[], categories: Category[] }) => {
     if (data && Array.isArray(data.activities) && Array.isArray(data.categories)) {
