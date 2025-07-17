@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useEffect, useMemo, ReactNo
 import type { Activity, Category } from '@/lib/types';
 import { initialCategories, OTHER_CATEGORY_ID, iconMap } from '@/lib/data';
 import { MoreHorizontal } from 'lucide-react';
+import { dedupeById } from '@/lib/utils';
 
 interface AppContextType {
     activities: Activity[];
@@ -27,7 +28,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 const getInitialData = () => {
     if (typeof window === 'undefined') {
         const categoriesWithIcons = initialCategories.map(c => ({...c, icon: iconMap[c.iconName] || MoreHorizontal}));
-        return { activities: [], categories: categoriesWithIcons };
+        return { activities: [], categories: dedupeById(categoriesWithIcons) };
     }
     try {
         const savedData = localStorage.getItem('oneTapData');
@@ -45,7 +46,7 @@ const getInitialData = () => {
                     ...c,
                     icon: iconMap[c.iconName] || MoreHorizontal
                 }));
-                return { activities: activitiesWithIcons, categories: categoriesWithIcons };
+                return { activities: activitiesWithIcons, categories: dedupeById(categoriesWithIcons) };
             }
         }
     } catch (error) {
@@ -170,7 +171,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 icon: iconMap[c.iconName] || MoreHorizontal,
             }));
             setActivities(activitiesWithIcons);
-            setCategories(categoriesWithIcons);
+            setCategories(dedupeById(categoriesWithIcons));
         } else {
             alert("Invalid data file format.");
         }
