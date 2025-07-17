@@ -40,7 +40,11 @@ const getInitialData = () => {
                         icon: iconMap[a.category.iconName] || MoreHorizontal
                     }
                 }));
-                return { ...parsed, activities: activitiesWithIcons };
+                const categoriesWithIcons = parsed.categories.map((c: Category) => ({
+                    ...c,
+                    icon: iconMap[c.iconName] || MoreHorizontal
+                }));
+                return { activities: activitiesWithIcons, categories: categoriesWithIcons };
             }
         }
     } catch (error) {
@@ -126,7 +130,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         // Filter the current categories to get a clean list of only the user's *true* custom categories.
         // A category is considered custom if its ID is not in the set of default IDs.
-        // This correctly handles categories that were created from scratch by the user.
+        // This correctly handles categories that were created from scratch by the user and discards modified defaults.
         const customCategories = categories.filter(c => !defaultCategoryIds.has(c.id));
 
         // Create the new, correct list of categories by combining the user's custom categories
@@ -137,8 +141,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     
     const importData = (data: { activities: Activity[], categories: Category[] }) => {
         if (data && Array.isArray(data.activities) && Array.isArray(data.categories)) {
-            setActivities(data.activities.map(a => ({ ...a, category: { ...a.category, icon: iconMap[a.category.iconName] } })));
-            setCategories(data.categories);
+             const activitiesWithIcons = data.activities.map(a => ({
+                ...a,
+                category: {
+                    ...a.category,
+                    icon: iconMap[a.category.iconName] || MoreHorizontal,
+                },
+            }));
+            const categoriesWithIcons = data.categories.map(c => ({
+                ...c,
+                icon: iconMap[c.iconName] || MoreHorizontal,
+            }));
+            setActivities(activitiesWithIcons);
+            setCategories(categoriesWithIcons);
         } else {
             alert("Invalid data file format.");
         }
