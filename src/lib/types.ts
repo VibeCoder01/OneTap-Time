@@ -122,3 +122,11 @@ export const iconMap: { [key: string]: React.ComponentType<{ className?: string 
   Tractor,
   MoreHorizontal,
 };
+
+export const initialCategories: Category[] = [
+  { id: 'work', name: 'Work', color: 'text-blue-500', iconName: 'Briefcase' },
+  { id: 'learning', name: 'Learning', color: 'text-green-500', iconName: 'BookOpen' },
+  { id: 'exercise', name: 'Exercise', color: 'text-red-500', iconName: 'Dumbbell' },
+  { id: 'personal', name: 'Personal', color: 'text-purple-500', iconName: 'User' },
+  { id: 'other', name: 'Other', color: 'text-gray-500', iconName: 'MoreHorizontal' },
+];

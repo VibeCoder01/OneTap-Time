@@ -9,16 +9,9 @@ import SummaryCard from '@/components/summary-card';
 import CategoryManager from '@/components/category-manager';
 import DataManager from '@/components/data-manager';
 import type { Activity, Category } from '@/lib/types';
-import { iconMap } from '@/lib/types';
+import { iconMap, initialCategories } from '@/lib/types';
+import { MoreHorizontal } from 'lucide-react';
 
-
-const initialCategories: Category[] = [
-  { id: 'work', name: 'Work', color: 'text-blue-500', iconName: 'Briefcase' },
-  { id: 'learning', name: 'Learning', color: 'text-green-500', iconName: 'BookOpen' },
-  { id: 'exercise', name: 'Exercise', color: 'text-red-500', iconName: 'Dumbbell' },
-  { id: 'personal', name: 'Personal', color: 'text-purple-500', iconName: 'User' },
-  { id: 'other', name: 'Other', color: 'text-gray-500', iconName: 'MoreHorizontal' },
-];
 
 const getInitialData = () => {
   if (typeof window === 'undefined') {
@@ -99,7 +92,33 @@ export default function Home() {
   };
 
   const handleDeleteCategory = (id: string) => {
+    const otherCategory = categories.find(c => c.id === 'other') || categories[0];
+    if (!otherCategory) return; // Should not happen
+
+    setActivities(prevActivities => 
+        prevActivities.map(activity => 
+            activity.category.id === id ? { ...activity, category: otherCategory } : activity
+        )
+    );
     setCategories(prev => prev.filter(category => category.id !== id));
+  };
+  
+  const handleRestoreDefaultCategories = () => {
+    const defaultCategories = initialCategories;
+    const otherCategory = defaultCategories.find(c => c.id === 'other');
+    if (!otherCategory) return;
+
+    const defaultCategoryIds = new Set(defaultCategories.map(c => c.id));
+
+    setActivities(prevActivities => 
+      prevActivities.map(activity => {
+        if (!defaultCategoryIds.has(activity.category.id)) {
+          return { ...activity, category: otherCategory };
+        }
+        return activity;
+      })
+    );
+    setCategories(defaultCategories);
   };
   
   const handleImportData = (data: { activities: Activity[], categories: Category[] }) => {
@@ -174,6 +193,7 @@ export default function Home() {
               onAdd={handleAddCategory} 
               onUpdate={handleUpdateCategory} 
               onDelete={handleDeleteCategory}
+              onRestoreDefaults={handleRestoreDefaultCategories}
             />
             <DataManager 
                 activities={activities}

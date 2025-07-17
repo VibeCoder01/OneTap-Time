@@ -44,7 +44,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Edit, Trash2, PlusCircle, Tag, ChevronsUpDown } from 'lucide-react';
+import { Edit, Trash2, PlusCircle, Tag, ChevronsUpDown, RotateCcw } from 'lucide-react';
 import type { Category } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { iconMap } from '@/lib/types';
@@ -54,6 +54,7 @@ interface CategoryManagerProps {
   onAdd: (category: Omit<Category, 'id' | 'icon'>) => void;
   onUpdate: (category: Category) => void;
   onDelete: (id: string) => void;
+  onRestoreDefaults: () => void;
 }
 
 const availableIcons = Object.keys(iconMap);
@@ -148,7 +149,7 @@ function CategoryForm({
   )
 }
 
-export default function CategoryManager({ categories, onAdd, onUpdate, onDelete }: CategoryManagerProps) {
+export default function CategoryManager({ categories, onAdd, onUpdate, onDelete, onRestoreDefaults }: CategoryManagerProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | undefined>(undefined);
   const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
@@ -199,19 +200,40 @@ export default function CategoryManager({ categories, onAdd, onUpdate, onDelete 
           </CollapsibleTrigger>
           <CollapsibleContent>
             <CardContent>
-                <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-                    <DialogTrigger asChild>
-                        <Button onClick={openAddDialog} className="mt-4 mb-4">
-                            <PlusCircle className="mr-2 h-4 w-4" /> Add Category
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
-                        </DialogHeader>
-                        <CategoryForm category={editingCategory} onSave={handleSave} />
-                    </DialogContent>
-                </Dialog>
+                <div className="mt-4 mb-4 flex gap-2">
+                    <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+                        <DialogTrigger asChild>
+                            <Button onClick={openAddDialog} className="flex-grow">
+                                <PlusCircle className="mr-2 h-4 w-4" /> Add Category
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
+                            </DialogHeader>
+                            <CategoryForm category={editingCategory} onSave={handleSave} />
+                        </DialogContent>
+                    </Dialog>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="outline">
+                                <RotateCcw className="mr-2 h-4 w-4" /> Restore Defaults
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This will replace all your current categories with the default set. Activities using custom categories will be reassigned to "Other". This action cannot be undone.
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={onRestoreDefaults}>Restore</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </div>
                 <div className="space-y-2">
                 {categories.length > 0 ? (
                     categories.map((category) => {
@@ -227,7 +249,7 @@ export default function CategoryManager({ categories, onAdd, onUpdate, onDelete 
                             
                             <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" disabled={category.isUsed}>
+                                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive">
                                 <Trash2 className="h-4 w-4" />
                                 </Button>
                             </AlertDialogTrigger>
@@ -235,7 +257,7 @@ export default function CategoryManager({ categories, onAdd, onUpdate, onDelete 
                                 <AlertDialogHeader>
                                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete the "{category.name}" category.
+                                    This will permanently delete the "{category.name}" category. Any activities using it will be moved to "Other".
                                 </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
