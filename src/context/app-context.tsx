@@ -118,14 +118,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
 
     const deleteCategory = (id: string) => {
-        // Prevent deletion of the special "Other" category
         if (id === OTHER_CATEGORY_ID) {
             return; 
         }
 
         const otherCategory = categories.find(c => c.id === OTHER_CATEGORY_ID);
 
-        // This should theoretically not happen if the "Other" category is protected
         if (!otherCategory) {
             console.error("Could not find 'Other' category to reassign activities to.");
             return;
@@ -141,19 +139,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const restoreDefaultCategories = () => {
         setCategories(prevCategories => {
-            const defaultCategoryIds = new Set(initialCategories.map(c => c.id));
+            const currentCategoryNames = new Set(prevCategories.map(c => c.name));
             
-            // Keep only the truly custom categories (those not in the original default set)
-            const customCategories = prevCategories.filter(c => !defaultCategoryIds.has(c.id));
-            
-            // Combine the user's custom categories with the pristine default categories
-            // This ensures no modified defaults are carried over, preventing key conflicts.
-            const finalCategories = [...initialCategories, ...customCategories].map(c => ({
+            const defaultsToAdd = initialCategories.filter(
+                defaultCategory => !currentCategoryNames.has(defaultCategory.name)
+            );
+
+            const categoriesToAddWithIcons = defaultsToAdd.map(c => ({
                 ...c,
                 icon: iconMap[c.iconName] || MoreHorizontal
             }));
 
-            return finalCategories;
+            return [...prevCategories, ...categoriesToAddWithIcons];
         });
     };
 
