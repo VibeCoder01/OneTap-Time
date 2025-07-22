@@ -15,6 +15,10 @@ OneTap Time is a simple yet powerful web application for tracking your time and 
 - **Data Portability:** Export all your activities and categories to a JSON file for backup, or import them back into the app at any time.
 - **Collapsible UI:** All sections except the main timer are collapsible, allowing you to maintain a clean and focused workspace.
 
+## Data Persistence
+
+Your data is automatically saved to your browser's local storage. This means all your activities, categories, and even a running timer are preserved between sessions. You can close your browser and come back later to find everything exactly as you left it.
+
 ## How to Use
 
 1.  **Start Tracking:** Simply press the "Start Timer" button to begin a new activity.
