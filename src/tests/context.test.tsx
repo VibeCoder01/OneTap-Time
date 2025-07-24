@@ -2,8 +2,8 @@
 "use client"
 
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { act } from 'react-dom/test-utils';
+import { createRoot, Root } from 'react-dom/client';
+import { act } from 'react';
 import { AppProvider, useAppContext } from '@/context/app-context';
 import { describe, it } from '@/lib/test-runner';
 import { initialCategories, OTHER_CATEGORY_ID } from '@/lib/data';
