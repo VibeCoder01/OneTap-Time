@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { act } from 'react-dom/test-utils';
 import { AppProvider, useAppContext } from '@/context/app-context';
 import { describe, it } from '@/lib/test-runner';
 import { initialCategories, OTHER_CATEGORY_ID } from '@/lib/data';
@@ -22,11 +23,6 @@ const resetTestEnv = () => {
   }
 };
 
-// Simple async utility to wait for the next tick, allowing React to render.
-const act = async (callback: () => void) => {
-    callback();
-    await new Promise(resolve => setTimeout(resolve, 0));
-};
 
 export function runAppContextTests() {
 
@@ -36,7 +32,7 @@ export function runAppContextTests() {
         resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
-        await act(() => {
+        await act(async () => {
             root.render(<AppProvider><TestConsumer /></AppProvider>);
         });
 
@@ -52,14 +48,14 @@ export function runAppContextTests() {
         resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
-        await act(() => {
+        await act(async () => {
             root.render(<AppProvider><TestConsumer /></AppProvider>);
         });
         
         const category = testContext.categories[0];
         expect(category).toBeDefined();
 
-        await act(() => {
+        await act(async () => {
             testContext.logActivity({
                 name: 'Test Activity',
                 category: category,
@@ -78,12 +74,12 @@ export function runAppContextTests() {
         resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
-        await act(() => {
+        await act(async () => {
             root.render(<AppProvider><TestConsumer /></AppProvider>);
         });
         
         const category = testContext.categories[0];
-        await act(() => {
+        await act(async () => {
             testContext.logActivity({
                 name: 'Initial Name',
                 category: category,
@@ -96,7 +92,7 @@ export function runAppContextTests() {
         const activityToUpdate = testContext.activities[0];
         expect(activityToUpdate).toBeDefined();
 
-        await act(() => {
+        await act(async () => {
             testContext.updateActivity({
                 ...activityToUpdate,
                 name: 'Updated Name'
@@ -111,11 +107,11 @@ export function runAppContextTests() {
         resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
-        await act(() => {
+        await act(async () => {
             root.render(<AppProvider><TestConsumer /></AppProvider>);
         });
 
-        await act(() => {
+        await act(async () => {
             testContext.logActivity({
                 name: 'To Be Deleted',
                 category: testContext.categories[0],
@@ -128,7 +124,7 @@ export function runAppContextTests() {
         expect(testContext.activities).toHaveLength(1);
         const activityId = testContext.activities[0].id;
         
-        await act(() => {
+        await act(async () => {
             testContext.deleteActivity(activityId);
         });
 
@@ -140,13 +136,13 @@ export function runAppContextTests() {
         resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
-        await act(() => {
+        await act(async () => {
             root.render(<AppProvider><TestConsumer /></AppProvider>);
         });
 
         const initialCount = testContext.categories.length;
 
-        await act(() => {
+        await act(async () => {
             testContext.addCategory({
                 name: 'Custom Test Category',
                 color: 'text-pink-500',
@@ -163,24 +159,24 @@ export function runAppContextTests() {
         resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
-        await act(() => {
+        await act(async () => {
             root.render(<AppProvider><TestConsumer /></AppProvider>);
         });
 
-        await act(() => {
+        await act(async () => {
             testContext.addCategory({ name: 'Old Category Name', color: 'text-red-500', iconName: 'Car' });
         });
 
         const newCategory = testContext.categories.find((c: any) => c.name === 'Old Category Name');
         expect(newCategory).toBeDefined();
 
-        await act(() => {
+        await act(async () => {
             testContext.logActivity({ name: 'Activity with old category', category: newCategory, startTime: 1, endTime: 2, duration: 1 });
         });
         
         expect(testContext.activities[0].category.name).toBe('Old Category Name');
 
-        await act(() => {
+        await act(async () => {
             testContext.updateCategory({ ...newCategory, name: 'New Category Name' });
         });
         
@@ -194,25 +190,25 @@ export function runAppContextTests() {
         resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
-        await act(() => {
+        await act(async () => {
             root.render(<AppProvider><TestConsumer /></AppProvider>);
         });
 
-        await act(() => {
+        await act(async () => {
             testContext.addCategory({ name: 'Category To Delete', color: 'text-yellow-500', iconName: 'Sun' });
         });
 
         const categoryToDelete = testContext.categories.find((c: any) => c.name === 'Category To Delete');
         expect(categoryToDelete).toBeDefined();
 
-        await act(() => {
+        await act(async () => {
             testContext.logActivity({ name: 'Test Activity', category: categoryToDelete, startTime: 1, endTime: 2, duration: 1 });
         });
 
         expect(testContext.activities[0].category.name).toBe('Category To Delete');
         const initialCategoryCount = testContext.categories.length;
         
-        await act(() => {
+        await act(async () => {
             testContext.deleteCategory(categoryToDelete.id);
         });
 
@@ -227,19 +223,19 @@ export function runAppContextTests() {
         resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
-        await act(() => {
+        await act(async () => {
             root.render(<AppProvider><TestConsumer /></AppProvider>);
         });
 
         const workCategory = testContext.categories.find((c: any) => c.name === 'Work');
         expect(workCategory).toBeDefined();
 
-        await act(() => {
+        await act(async () => {
             testContext.deleteCategory(workCategory.id);
         });
         expect(testContext.categories.some((c: any) => c.name === 'Work')).toBeFalsy();
 
-        await act(() => {
+        await act(async () => {
             testContext.restoreDefaultCategories();
         });
 
