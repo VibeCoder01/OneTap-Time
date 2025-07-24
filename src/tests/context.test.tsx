@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
-import { act } from 'react';
+import { act } from 'react-dom/test-utils';
 import { AppProvider, useAppContext } from '@/context/app-context';
 import { describe, it } from '@/lib/test-runner';
 import { initialCategories, OTHER_CATEGORY_ID } from '@/lib/data';
