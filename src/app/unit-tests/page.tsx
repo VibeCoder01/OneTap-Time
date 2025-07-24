@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { runTests, TestResult } from '@/lib/test-runner';
 import { runAppContextTests } from '@/tests/context.test';
+import { runUtilsTests } from '@/tests/utils.test';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -19,7 +20,8 @@ export default function UnitTestsPage() {
       setIsTesting(true);
       // Run all test suites here
       const appContextResults = await runTests('App Context Logic', runAppContextTests);
-      setResults(appContextResults);
+      const utilsResults = await runTests('Utils Library', runUtilsTests);
+      setResults([...appContextResults, ...utilsResults]);
       setIsTesting(false);
     };
     run();
