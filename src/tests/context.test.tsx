@@ -2,11 +2,18 @@
 "use client"
 
 import React from 'react';
-import { createRoot, Root } from 'react-dom/client';
-import { act } from 'react-dom/test-utils';
+import { createRoot } from 'react-dom/client';
 import { AppProvider, useAppContext } from '@/context/app-context';
 import { describe, it } from '@/lib/test-runner';
 import { initialCategories, OTHER_CATEGORY_ID } from '@/lib/data';
+
+// react-dom/test-utils is not reliable in this browser-based test environment
+// so we provide a very small replacement that simply awaits the callback and
+// lets React process state updates on the next tick.
+const act = async (fn: () => void | Promise<void>) => {
+  await fn();
+  await new Promise(resolve => setTimeout(resolve, 0));
+};
 
 declare const expect: (actual: any) => any;
 
