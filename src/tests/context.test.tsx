@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 import { AppProvider, useAppContext } from '@/context/app-context';
 import { describe, it } from '@/lib/test-runner';
 import { initialCategories, OTHER_CATEGORY_ID } from '@/lib/data';
@@ -11,7 +11,6 @@ import { initialCategories, OTHER_CATEGORY_ID } from '@/lib/data';
 declare const expect: (actual: any) => any;
 
 // Helper component to extract context values for testing.
-// It uses a callback to pass the context value back to the test scope.
 let testContext: any = {};
 const TestConsumer = () => {
   testContext = useAppContext();
