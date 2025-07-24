@@ -1,6 +1,6 @@
 
-import React, { ReactNode } from 'react';
-import { render, unmountComponentAtNode } from 'react-dom';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 import { AppProvider, useAppContext } from '@/context/app-context';
 import { describe, it } from '@/lib/test-runner';
 import { initialCategories, OTHER_CATEGORY_ID } from '@/lib/data';
@@ -16,40 +16,47 @@ const TestConsumer = () => {
 
 // Wrapper to provide the context to our test consumer
 const renderWithProvider = (container: HTMLElement) => {
-  render(
+  const root = createRoot(container);
+  root.render(
     <AppProvider>
       <TestConsumer />
     </AppProvider>,
-    container
   );
+  return root;
 };
 
+
 // A simple way to wrap state updates for this test environment
-const act = (callback: () => void, container: HTMLElement) => {
+const act = (callback: () => void, root: any, container: HTMLElement) => {
     callback();
     // Re-render to ensure context updates are reflected
-    renderWithProvider(container);
+    root.render(
+        <AppProvider>
+            <TestConsumer />
+        </AppProvider>
+    );
 };
 
 export function runAppContextTests() {
 
   describe('App Context Data Management', () => {
-    let container: HTMLDivElement | null = null;
 
     // This is a simplified beforeEach/afterEach
     const runTest = (testFn: () => void) => {
         return () => {
-            container = document.createElement('div');
+            const container = document.createElement('div');
             document.body.appendChild(container);
+            let root: any;
             try {
                 // Initial render
-                renderWithProvider(container);
+                root = renderWithProvider(container);
                 testFn();
             } finally {
+                if (root) {
+                    root.unmount();
+                }
                 if (container) {
-                    unmountComponentAtNode(container);
                     container.remove();
-                    container = null;
                 }
             }
         }
@@ -66,6 +73,8 @@ export function runAppContextTests() {
         const category = testContext.categories[0];
         expect(category).toBeDefined();
 
+        const container = document.createElement('div');
+        const root = createRoot(container);
         act(() => {
             testContext.logActivity({
                 name: 'Test Activity',
@@ -74,7 +83,7 @@ export function runAppContextTests() {
                 endTime: Date.now() + 1000,
                 duration: 1
             });
-        }, container!);
+        }, root, container);
         
         expect(testContext.activities).toHaveLength(1);
         expect(testContext.activities[0].name).toBe('Test Activity');
@@ -82,6 +91,9 @@ export function runAppContextTests() {
 
     it('should update an existing activity', runTest(() => {
         const category = testContext.categories[0];
+        const container = document.createElement('div');
+        const root = createRoot(container);
+
         act(() => {
             testContext.logActivity({
                 name: 'Initial Name',
@@ -90,7 +102,7 @@ export function runAppContextTests() {
                 endTime: Date.now() + 1000,
                 duration: 1
             });
-        }, container!);
+        }, root, container);
         
         const activityToUpdate = testContext.activities[0];
         expect(activityToUpdate).toBeDefined();
@@ -100,12 +112,14 @@ export function runAppContextTests() {
                 ...activityToUpdate,
                 name: 'Updated Name'
             });
-        }, container!);
+        }, root, container);
         
         expect(testContext.activities[0].name).toBe('Updated Name');
     }));
 
     it('should delete an activity', runTest(() => {
+        const container = document.createElement('div');
+        const root = createRoot(container);
         act(() => {
             testContext.logActivity({
                 name: 'To Be Deleted',
@@ -114,20 +128,22 @@ export function runAppContextTests() {
                 endTime: Date.now() + 1000,
                 duration: 1
             });
-        }, container!);
+        }, root, container);
 
         expect(testContext.activities).toHaveLength(1);
         const activityId = testContext.activities[0].id;
         
         act(() => {
             testContext.deleteActivity(activityId);
-        }, container!);
+        }, root, container);
 
         expect(testContext.activities).toHaveLength(0);
     }));
 
     it('should add a custom category', runTest(() => {
         const initialCount = testContext.categories.length;
+        const container = document.createElement('div');
+        const root = createRoot(container);
 
         act(() => {
             testContext.addCategory({
@@ -135,29 +151,31 @@ export function runAppContextTests() {
                 color: 'text-pink-500',
                 iconName: 'Heart'
             });
-        }, container!);
+        }, root, container);
 
         expect(testContext.categories).toHaveLength(initialCount + 1);
         expect(testContext.categories.some((c: any) => c.name === 'Custom Test Category')).toBeTruthy();
     }));
 
     it('should update a custom category and reflect changes in activities', runTest(() => {
+        const container = document.createElement('div');
+        const root = createRoot(container);
         act(() => {
             testContext.addCategory({ name: 'Old Category Name', color: 'text-red-500', iconName: 'Car' });
-        }, container!);
+        }, root, container);
 
         const newCategory = testContext.categories.find((c: any) => c.name === 'Old Category Name');
         expect(newCategory).toBeDefined();
 
         act(() => {
             testContext.logActivity({ name: 'Activity with old category', category: newCategory!, startTime: 1, endTime: 2, duration: 1 });
-        }, container!);
+        }, root, container);
         
         expect(testContext.activities[0].category.name).toBe('Old Category Name');
 
         act(() => {
             testContext.updateCategory({ ...newCategory!, name: 'New Category Name' });
-        }, container!);
+        }, root, container);
         
         const updatedCategory = testContext.categories.find((c: any) => c.id === newCategory!.id);
         expect(updatedCategory?.name).toBe('New Category Name');
@@ -165,23 +183,26 @@ export function runAppContextTests() {
     }));
 
     it('should delete a category and reassign its activities to "Other"', runTest(() => {
+        const container = document.createElement('div');
+        const root = createRoot(container);
+
         act(() => {
             testContext.addCategory({ name: 'Category To Delete', color: 'text-yellow-500', iconName: 'Sun' });
-        }, container!);
+        }, root, container);
 
         const categoryToDelete = testContext.categories.find((c: any) => c.name === 'Category To Delete');
         expect(categoryToDelete).toBeDefined();
 
         act(() => {
             testContext.logActivity({ name: 'Test Activity', category: categoryToDelete!, startTime: 1, endTime: 2, duration: 1 });
-        }, container!);
+        }, root, container);
 
         expect(testContext.activities[0].category.name).toBe('Category To Delete');
         const initialCategoryCount = testContext.categories.length;
         
         act(() => {
             testContext.deleteCategory(categoryToDelete!.id);
-        }, container!);
+        }, root, container);
 
         expect(testContext.categories).toHaveLength(initialCategoryCount - 1);
         expect(testContext.categories.some((c: any) => c.id === categoryToDelete!.id)).toBeFalsy();
@@ -192,14 +213,17 @@ export function runAppContextTests() {
     it('should restore default categories without duplicating existing ones by name', runTest(() => {
         const workCategory = testContext.categories.find((c: any) => c.name === 'Work');
         expect(workCategory).toBeDefined();
+        const container = document.createElement('div');
+        const root = createRoot(container);
+
         act(() => {
             testContext.deleteCategory(workCategory!.id);
-        }, container!);
+        }, root, container);
         expect(testContext.categories.some((c: any) => c.name === 'Work')).toBeFalsy();
 
         act(() => {
             testContext.restoreDefaultCategories();
-        }, container!);
+        }, root, container);
 
         expect(testContext.categories.some((c: any) => c.name === 'Work')).toBeTruthy();
         
