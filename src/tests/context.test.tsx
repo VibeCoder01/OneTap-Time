@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { createRoot, Root } from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import { AppProvider, useAppContext } from '@/context/app-context';
 import { describe, it } from '@/lib/test-runner';
 import { initialCategories, OTHER_CATEGORY_ID } from '@/lib/data';
@@ -15,6 +15,13 @@ const TestConsumer = () => {
   return null;
 };
 
+const resetTestEnv = () => {
+  testContext = {};
+  if (typeof window !== 'undefined' && window.localStorage) {
+    window.localStorage.clear();
+  }
+};
+
 // Simple async utility to wait for the next tick, allowing React to render.
 const act = async (callback: () => void) => {
     callback();
@@ -26,6 +33,7 @@ export function runAppContextTests() {
   describe('App Context Data Management', () => {
 
     it('should initialize with default categories and no activities', async () => {
+        resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
         await act(() => {
@@ -41,6 +49,7 @@ export function runAppContextTests() {
     });
     
     it('should add a new activity', async () => {
+        resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
         await act(() => {
@@ -66,6 +75,7 @@ export function runAppContextTests() {
     });
 
     it('should update an existing activity', async () => {
+        resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
         await act(() => {
@@ -98,6 +108,7 @@ export function runAppContextTests() {
     });
 
     it('should delete an activity', async () => {
+        resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
         await act(() => {
@@ -126,6 +137,7 @@ export function runAppContextTests() {
     });
 
     it('should add a custom category', async () => {
+        resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
         await act(() => {
@@ -148,6 +160,7 @@ export function runAppContextTests() {
     });
 
     it('should update a custom category and reflect changes in activities', async () => {
+        resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
         await act(() => {
@@ -178,6 +191,7 @@ export function runAppContextTests() {
     });
 
     it('should delete a category and reassign its activities to "Other"', async () => {
+        resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
         await act(() => {
@@ -210,6 +224,7 @@ export function runAppContextTests() {
     });
 
     it('should restore default categories without duplicating existing ones by name', async () => {
+        resetTestEnv();
         const container = document.createElement('div');
         const root = createRoot(container);
         await act(() => {
