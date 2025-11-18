@@ -36,6 +36,59 @@ Your data is automatically saved to your browser's local storage. This means all
 - **Components:** [ShadCN UI](https://ui.shadcn.com/)
 - **Icons:** [Lucide React](https://lucide.dev/)
 
+## Getting Started
+
+To get a local copy up and running, follow these simple steps.
+
+### Prerequisites
+
+You'll need to have Node.js and npm installed on your machine.
+- [Node.js](https://nodejs.org/) (which includes npm)
+
+### Installation
+
+1. Clone the repo
+   ```sh
+   git clone https://github.com/your_username/your_repository.git
+   ```
+2. Navigate to the project directory
+   ```sh
+   cd your_repository
+   ```
+3. Install NPM packages
+   ```sh
+   npm install
+   ```
+4. Run the development server
+   ```sh
+   npm run dev
+   ```
+   Open [http://localhost:9002](http://localhost:9002) to view it in the browser.
+
+## Project Structure
+
+A brief overview of the key files and folders in this project:
+
+- **`src/app/`**: Contains the core pages and layouts for the Next.js application, using the App Router.
+- **`src/components/`**: Houses all the React components used to build the UI.
+    - **`src/components/ui/`**: Contains the ShadCN UI components.
+- **`src/context/`**: Holds the React Context for managing global application state (`app-context.tsx`).
+- **`src/lib/`**: Includes utility functions (`utils.ts`), type definitions (`types.ts`), and static data like categories and icons (`data.ts`).
+- **`public/`**: Stores static assets like images and fonts.
+- **`package.json`**: Lists the project's dependencies and scripts.
+
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
