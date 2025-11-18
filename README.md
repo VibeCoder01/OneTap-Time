@@ -2,7 +2,8 @@
 
 OneTap Time is a simple yet powerful web application for tracking your time and activities. With a clean, minimalist interface, it helps you stay focused and understand where your time goes. Built with Next.js, React, and ShadCN UI, it's designed for efficiency and ease of use.
 
-![OneTap Time Screenshot](https://placehold.co/800x600.png)
+<img width="935" height="654" alt="image" src="https://github.com/user-attachments/assets/5fc4661c-f17f-4153-8e49-248ce92e415f" />
+
 *This is a placeholder image. The actual app interface is described below.*
 
 ## Key Features
