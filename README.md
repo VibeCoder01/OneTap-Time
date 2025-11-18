@@ -4,8 +4,6 @@ OneTap Time is a simple yet powerful web application for tracking your time and 
 
 <img width="935" height="654" alt="image" src="https://github.com/user-attachments/assets/5fc4661c-f17f-4153-8e49-248ce92e415f" />
 
-*This is a placeholder image. The actual app interface is described below.*
-
 ## Key Features
 
 - **Simple Timer:** Start and stop tracking with a single click. The timer displays the elapsed time in a clear, easy-to-read format.
